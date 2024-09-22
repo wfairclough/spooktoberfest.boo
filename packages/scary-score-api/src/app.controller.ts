@@ -22,6 +22,14 @@ export class AppController {
     return this.moviesService.searchMovies(query, page);
   }
 
+  @Get('movies/horror/search')
+  searchHorrorMovies(
+    @Query('query') query: string,
+    @Query('page', ParseIntPipe) page: number,
+  ) {
+    return this.moviesService.searchHorrorMovies(query, page);
+  }
+
   @Get('movies/:movieId')
   getMovieById(@Param('movieId') movieId: string) {
     return this.moviesService.getMovieDetails(movieId);
