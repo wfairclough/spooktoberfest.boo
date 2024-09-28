@@ -7,10 +7,11 @@ import {
   CommandItem,
   CommandList,
 } from "./ui/command";
-import { useQuery } from "@tanstack/react-query";
 import { Movie } from "../models/movies";
 import { Spinner, VisuallyHidden } from "@radix-ui/themes";
 import { Description, DialogTitle } from "@radix-ui/react-dialog";
+import { useFetcher } from "@remix-run/react";
+import { loader as movieSearchLoader } from "~/routes/movies-search";
 
 export type OnMovieSelect = (movie: Movie) => void;
 
@@ -25,28 +26,19 @@ const MovieCommandDialog = ({
   onOpenChange,
   onMovieSelect,
 }: MovieCommandDialogProps) => {
-  const [query, setQuery] = useState("");
+  const fetcher = useFetcher<typeof movieSearchLoader>();
 
-  const { isPending, isError, data, error } = useQuery({
-    queryKey: ["movies", query],
-    queryFn: async () => {
-      // await new Promise((resolve) => setTimeout(resolve, 2000));
-      const resp = await fetch(
-        `http://localhost:3000/movies/horror/search?query=${query}&page=1`
-      );
-      return resp.json();
-    },
-  });
+  const handleSearch = async(e: any) => {
+    const query = e.target.value;
+    const data = new FormData();
+    data.append("q", query);
+    console.log({ data });
+    fetcher.load('/movies-search?q=' + query);
+  };
 
-  const movies: ({ label: string; value: string } & Movie)[] = [
-    ...(data?.results?.map((movie: Movie) => ({
-      ...movie,
-      value: movie.id,
-      label: `${movie.title} (${movie.release_date.split("-")[0]})`,
-    })) ?? []),
-  ];
+  console.log({ fetcher });
 
-  console.log(data);
+  const data = fetcher.state === "idle" ? [...(fetcher.data?.results ?? [])] : [];
 
   return (
     <>
@@ -56,28 +48,29 @@ const MovieCommandDialog = ({
           <Description>Search for a scary movie to nominate.</Description>
         </VisuallyHidden>
         <CommandInput
+          name="q"
           placeholder="Search for a scary movie..."
-          value={query}
-          onInput={(e: any) => setQuery(e.target.value)}
+          onInput={(e: any) => handleSearch(e)}
         />
         <CommandList>
           <CommandEmpty style={{ minHeight: "200px" }}>
-            { isPending ? <Spinner />: isError ? error.message : `No scary movies found.` }
+            No scary movies found.
           </CommandEmpty>
-          <CommandGroup heading="Scary Movies" onChange={(e) => console.log(e)}>
-            {movies.map((movie) => (
-              <CommandItem
-                className={`value-${movie.value}`}
-                key={movie.value}
-                value={movie.value}
-                onSelect={() => {
-                  console.log("selected: ", movie);
-                  onMovieSelect?.(movie);
-                }}
-              >
-                {movie.label}
-              </CommandItem>
-            ))}
+          <CommandGroup heading="Scary Movies">
+              { data.map((movie) => (
+                <CommandItem
+                  className={`value-${movie.id}`}
+                  key={movie.id}
+                  value={movie.id + ""}
+                  onSelect={() => {
+                    console.log("selected: ", movie);
+                    onMovieSelect?.(movie);
+                  }}
+                >
+                  {`${movie.title} (${movie.release_date.split("-")[0]})`}
+                </CommandItem>
+              ))
+            }
           </CommandGroup>
         </CommandList>
       </CommandDialog>
@@ -85,4 +78,4 @@ const MovieCommandDialog = ({
   );
 };
 
-export default memo(MovieCommandDialog);
+export default MovieCommandDialog;

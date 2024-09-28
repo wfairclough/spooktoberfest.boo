@@ -8,21 +8,7 @@ import { Nomination } from "~/models/nominations";
 
 export default function SpooktoberFestLanding() {
   const audRef = createRef<HTMLAudioElement>();
-  const [movie1, setMovie1] = useState("");
-  const [movie2, setMovie2] = useState("");
   const [lockedIn, setLockedIn] = useState(false);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Handle form submission here
-    console.log("Nominated movies:", movie1, movie2);
-    // Reset form
-    setMovie1("");
-    setMovie2("");
-
-    audRef?.current?.play();
-  };
 
   const handleRunAway = () => {
     console.log(`Ran away`);
@@ -91,31 +77,6 @@ export default function SpooktoberFestLanding() {
               onMoviesNominated={handleMovieNominations}
               onRunAway={handleRunAway}
             />
-            {/* <form onSubmit={handleSubmit} className="max-w-md mx-auto">
-              <div className="mb-4">
-                <Label htmlFor="movie1">Movie 1</Label>
-                <Input
-                  id="movie1"
-                  value={movie1}
-                  onChange={(e) => setMovie1(e.target.value)}
-                  placeholder="Enter your first movie nomination"
-                  required
-                />
-              </div>
-              <div className="mb-6">
-                <Label htmlFor="movie2">Movie 2</Label>
-                <Input
-                  id="movie2"
-                  value={movie2}
-                  onChange={(e) => setMovie2(e.target.value)}
-                  placeholder="Enter your second movie nomination"
-                  required
-                />
-              </div>
-              <Button type="submit" className="w-full bg-orange-500 hover:bg-orange-600 text-white">
-                Submit Nominations
-              </Button>
-            </form> */}
           </div>
         </section>
 

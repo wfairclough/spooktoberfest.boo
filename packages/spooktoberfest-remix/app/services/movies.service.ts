@@ -1,20 +1,29 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Movie } from "~/models/movies";
 import { CacheService } from "./cache.service";
 
 const movieDbUrlPrefix = `https://api.themoviedb.org/3`;
 
-@Injectable()
+export interface SearchResults<T> {
+  page: number;
+  results: T[];
+  total_results: number;
+  total_pages: number;
+}
+
 export class MoviesService {
 
   constructor(
-    @Inject('TMDB_API_TOKEN') private readonly tmdbApiToken: string,
+    private readonly tmdbApiToken: string,
     private readonly cacheService: CacheService,
-  ) {}
+  ) {
+    console.log('MoviesService initialized');
+    console.log('tmdbApiToken:', tmdbApiToken);
+  }
 
   async searchMovies(
     query: string,
     page: number = 1,
-  ) {
+  ): Promise<SearchResults<Movie>> {
     const url = encodeURI(`https://api.themoviedb.org/3/search/movie?query=${query}&page=${page}`);
     const response = await fetch(url, {
       headers: {
