@@ -68,9 +68,6 @@ export default function SpooktoberFestLanding() {
             <p className="text-xl mb-8">
               Coming soon to a Katrina and Will&apos;s house near you
             </p>
-            {/* <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white">
-              Learn More
-            </Button> */}
             <div className="text-center center flex justify-center">
               <GhostIcon className="w-32 h-32 text-white align-middle justify-self-center" />
             </div>
