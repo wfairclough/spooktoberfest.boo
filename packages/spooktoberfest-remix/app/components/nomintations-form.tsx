@@ -16,13 +16,15 @@ import { Button } from "./ui/button";
 import { Movie } from "../models/movies";
 import { Input } from "./ui/input";
 import { Nomination } from "~/models/nominations";
+import { Lock } from "lucide-react";
 
 export interface NominationsFormProps {
+  lockedIn: boolean;
   onMoviesNominated: (params: Nomination) => void;
   onRunAway: () => void;
 }
 
-const NominationsForm = ({ onMoviesNominated, onRunAway }: NominationsFormProps) => {
+const NominationsForm = ({ lockedIn, onMoviesNominated, onRunAway }: NominationsFormProps) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [openMovieSearchDialog, setOpenMovieSearchDialog] = useState(false);
@@ -46,6 +48,9 @@ const NominationsForm = ({ onMoviesNominated, onRunAway }: NominationsFormProps)
   };
 
   const nominationButtons = (() => {
+    if (lockedIn) {
+      return undefined;
+    }
     if (selectedMovies.length === 0) {
       return (
         <>
@@ -80,18 +85,22 @@ const NominationsForm = ({ onMoviesNominated, onRunAway }: NominationsFormProps)
   })();
 
   const lockInNominationButton = (() => {
+    if (lockedIn) {
+      return undefined;
+    }
     if (selectedMovies.length === 2) {
       return (
         <>
           <div className="grid gap-2 mt-6">
             <AlertDialog>
               <AlertDialogTrigger>
-                <Button className="bg-green-500 hover:bg-green-600 text-black md:w-6/12 text-2xl justify-self-center">
+                <Button className="bg-green-500 hover:bg-green-600 text-black h-16 text-2xl justify-self-center">
+                  <Lock size={24} className="mr-2" />
                   Lock in nominations
                 </Button>
               </AlertDialogTrigger>
 
-              <AlertDialogContent>
+              <AlertDialogContent onEscapeKeyDown={(e) => e.preventDefault()}>
                 <AlertDialogHeader>
                   <AlertDialogTitle>Are You Daring Enough?</AlertDialogTitle>
                   <AlertDialogDescription>
@@ -100,7 +109,7 @@ const NominationsForm = ({ onMoviesNominated, onRunAway }: NominationsFormProps)
                     no escape!
 
                     <form className="m-2 flex flex-col gap-2">
-                      <Input type="text" placeholder="Name" name="name" value={name} onChange={(e) => setName(e.target.value)} />
+                      <Input type="text" autoFocus placeholder="Name" name="name" value={name} onChange={(e) => setName(e.target.value)} />
                       <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
                     </form>
 
@@ -134,7 +143,7 @@ const NominationsForm = ({ onMoviesNominated, onRunAway }: NominationsFormProps)
     <>
       <div className="grid gap-2">{nominationButtons}</div>
 
-      <div className="min-w-full flex justify-evenly sm:flex-col sm:items-center md:flex-row lg:flex-row xl:flex-row">
+      <div className="min-w-full flex justify-evenly items-center flex-col sm:flex-col sm:items-center md:flex-row lg:flex-row xl:flex-row">
         {selectedMovies.map((movie) => (
           <Box key={movie.id} maxWidth="340px" className="mt-6">
             <Card size="2">

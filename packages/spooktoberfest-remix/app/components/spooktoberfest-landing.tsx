@@ -1,7 +1,4 @@
 import { createRef, useState } from "react";
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
 import { GhostIcon, CalendarIcon, ClockIcon, MapPinIcon } from "lucide-react";
 
 import bgAudio from "~/assets/audio/creepy-background.mp3";
@@ -13,6 +10,7 @@ export default function SpooktoberFestLanding() {
   const audRef = createRef<HTMLAudioElement>();
   const [movie1, setMovie1] = useState("");
   const [movie2, setMovie2] = useState("");
+  const [lockedIn, setLockedIn] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,8 +25,8 @@ export default function SpooktoberFestLanding() {
   };
 
   const handleRunAway = () => {
-    audRef.current?.play();
-  }
+    console.log(`Ran away`);
+  };
 
   const nominations = useMutation({
     mutationFn: async (noms: Nomination) => {
@@ -44,11 +42,11 @@ export default function SpooktoberFestLanding() {
     },
   });
 
-
   const handleMovieNominations = (params: any) => {
     console.log(params);
     audRef.current?.play();
     nominations.mutate(params);
+    setLockedIn(true);
   };
 
   return (
@@ -82,9 +80,20 @@ export default function SpooktoberFestLanding() {
         <section id="nominate" className="py-16">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl font-bold mb-8 text-center">
-              Nominate Your Spooky Movies
+              {lockedIn
+                ? "Your Frightening Flicks are Locked and Loaded!"
+                : "Nominate Your Spookiest Movies"}
             </h2>
-            <NominationsForm onMoviesNominated={handleMovieNominations} onRunAway={handleRunAway} />
+            <p className="text-center">
+              {lockedIn
+                ? "The countdown to terror begins... Voting opens on October 7th!"
+                : ""}
+            </p>
+            <NominationsForm
+              lockedIn={lockedIn}
+              onMoviesNominated={handleMovieNominations}
+              onRunAway={handleRunAway}
+            />
             {/* <form onSubmit={handleSubmit} className="max-w-md mx-auto">
               <div className="mb-4">
                 <Label htmlFor="movie1">Movie 1</Label>
@@ -112,7 +121,7 @@ export default function SpooktoberFestLanding() {
             </form> */}
           </div>
         </section>
-        
+
         <section id="about" className="py-16">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl font-bold mb-8 text-center">
@@ -137,7 +146,6 @@ export default function SpooktoberFestLanding() {
             </div>
           </div>
         </section>
-
       </main>
 
       <footer className="py-8">
