@@ -1,10 +1,30 @@
-import { Box, Card, Inset, Text, Strong } from "@radix-ui/themes";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "~/components/ui/alert-dialog";
+import { Box, Card, Inset, Text, Strong, Spinner } from "@radix-ui/themes";
 import MovieCommandDialog from "./movie-cmd-dialog";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { Movie } from "../models/movies";
+import { Input } from "./ui/input";
+import { Nomination } from "~/models/nominations";
 
-const NominationsForm = () => {
+export interface NominationsFormProps {
+  onMoviesNominated: (params: Nomination) => void;
+  onRunAway: () => void;
+}
+
+const NominationsForm = ({ onMoviesNominated, onRunAway }: NominationsFormProps) => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [openMovieSearchDialog, setOpenMovieSearchDialog] = useState(false);
   const [selectedMovies, setSelectedMovies] = useState<Movie[]>([]);
 
@@ -25,37 +45,96 @@ const NominationsForm = () => {
     setSelectedMovies([movie, ...selectedMovies].slice(0, 2));
   };
 
-  let nomBtnText = "Nominate your movies";
-  let nomBtnClasses = "bg-orange-500 hover:bg-orange-600";
-  if (selectedMovies.length === 1) {
-    nomBtnText = "Nominate your next movie";
-    nomBtnClasses = "bg-orange-500 hover:bg-orange-600";
-  } else if (selectedMovies.length === 2) {
-    nomBtnText = `Lock in your nominations`;
-    nomBtnClasses = "bg-green-500 hover:bg-green-600";
-  }
+  const nominationButtons = (() => {
+    if (selectedMovies.length === 0) {
+      return (
+        <>
+          <Button
+            className="bg-orange-500 hover:bg-orange-600 text-blacksm:w-full md:w-6/12 text-2xl justify-self-center"
+            onClick={() => setOpenMovieSearchDialog(true)}
+          >
+            Nominate your movies
+          </Button>
+        </>
+      );
+    } else if (selectedMovies.length >= 1) {
+      return (
+        <>
+          <Button
+            className="bg-orange-500 hover:bg-orange-600 text-black md:w-6/12 text-2xl justify-self-center"
+            onClick={() => setOpenMovieSearchDialog(true)}
+          >
+            {selectedMovies.length === 1
+              ? "Nominate another movie"
+              : "Replace a movie"}
+          </Button>
+          <Button
+            className="bg-slate-500 hover:bg-slate-600 text-black md:w-6/12 text-2xl justify-self-center"
+            onClick={() => setSelectedMovies([])}
+          >
+            Reset
+          </Button>
+        </>
+      );
+    }
+  })();
+
+  const lockInNominationButton = (() => {
+    if (selectedMovies.length === 2) {
+      return (
+        <>
+          <div className="grid gap-2 mt-6">
+            <AlertDialog>
+              <AlertDialogTrigger>
+                <Button className="bg-green-500 hover:bg-green-600 text-black md:w-6/12 text-2xl justify-self-center">
+                  Lock in nominations
+                </Button>
+              </AlertDialogTrigger>
+
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are You Daring Enough?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    These are your final nominations for Spooktoberfest 2024.
+                    Once locked in, there's no turning back—no second chances,
+                    no escape!
+
+                    <form className="m-2 flex flex-col gap-2">
+                      <Input type="text" placeholder="Name" name="name" value={name} onChange={(e) => setName(e.target.value)} />
+                      <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                    </form>
+
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel onClick={onRunAway}>Run Away</AlertDialogCancel>
+                  <AlertDialogAction
+                    disabled={!name || !email}
+                    onClick={() =>
+                      onMoviesNominated({
+                        name: name,
+                        email: email,
+                        movies: selectedMovies.map((m) => m.id),
+                      })
+                    }
+                  >
+                    Seal My Fate!
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        </>
+      );
+    }
+    return undefined;
+  })();
 
   return (
     <>
-      <div className="flex justify-evenly m-6">
-        <Button
-          className={`${nomBtnClasses} text-black sm:w-full md:w-6/12 text-2xl`}
-          onClick={() => setOpenMovieSearchDialog(true)}
-        >
-          {nomBtnText}
-        </Button>
-        {selectedMovies.length > 0 && ( 
-        <Button
-          className='bg-slate-400 hover:bg-slate-500 text-black sm:w-full md:w-6/12 text-2xl'
-          onClick={() => setSelectedMovies([])}
-        >
-          Clear nominations
-        </Button>
-        )}
+      <div className="grid gap-2">{nominationButtons}</div>
 
-      </div>
-
-      <div className="min-w-full flex justify-evenly sm:items-center sm:flex-col">
+      <div className="min-w-full flex justify-evenly sm:flex-col sm:items-center md:flex-row lg:flex-row xl:flex-row">
         {selectedMovies.map((movie) => (
           <Box key={movie.id} maxWidth="340px" className="mt-6">
             <Card size="2">
@@ -67,7 +146,7 @@ const NominationsForm = () => {
                     display: "block",
                     objectFit: "cover",
                     width: "100%",
-                    height: 140,
+                    height: 360,
                     backgroundColor: "var(--gray-5)",
                   }}
                 />
@@ -81,6 +160,8 @@ const NominationsForm = () => {
           </Box>
         ))}
       </div>
+
+      {lockInNominationButton}
 
       <MovieCommandDialog
         open={openMovieSearchDialog}

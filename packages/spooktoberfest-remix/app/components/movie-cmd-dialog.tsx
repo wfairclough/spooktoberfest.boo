@@ -20,16 +20,6 @@ export interface MovieCommandDialogProps {
   onMovieSelect?: OnMovieSelect;
 }
 
-const MovieCommandList = memo(function MovieCommandList({
-  movies,
-  onMovieSelect,
-}: {
-  movies: ({ label: string; value: string } & Movie)[];
-  onMovieSelect?: OnMovieSelect;
-}) {
-  return;
-});
-
 const MovieCommandDialog = ({
   open,
   onOpenChange,
@@ -40,7 +30,7 @@ const MovieCommandDialog = ({
   const { isPending, isError, data, error } = useQuery({
     queryKey: ["movies", query],
     queryFn: async () => {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // await new Promise((resolve) => setTimeout(resolve, 2000));
       const resp = await fetch(
         `http://localhost:3000/movies/horror/search?query=${query}&page=1`
       );

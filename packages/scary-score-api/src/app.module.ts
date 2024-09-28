@@ -4,6 +4,8 @@ import { AppService } from './app.service';
 import { CacheService } from './cache.service';
 import { ConfigModule } from '@nestjs/config';
 import { MoviesService } from './movies.service';
+import { NominationService } from './nomination.service';
+import { ZodValidationPipe } from './zod-validation.pipe';
 
 @Module({
   imports: [
@@ -14,6 +16,8 @@ import { MoviesService } from './movies.service';
     AppService,
     CacheService,
     MoviesService,
+    NominationService,
+    ZodValidationPipe,
     {
       provide: 'REDIS_URL',
       useValue: process.env.REDIS_URL,

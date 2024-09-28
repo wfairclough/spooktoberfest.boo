@@ -6,6 +6,8 @@ import { GhostIcon, CalendarIcon, ClockIcon, MapPinIcon } from "lucide-react";
 
 import bgAudio from "~/assets/audio/creepy-background.mp3";
 import NominationsForm from "./nomintations-form";
+import { useMutation } from "@tanstack/react-query";
+import { Nomination } from "~/models/nominations";
 
 export default function SpooktoberFestLanding() {
   const audRef = createRef<HTMLAudioElement>();
@@ -24,9 +26,34 @@ export default function SpooktoberFestLanding() {
     audRef?.current?.play();
   };
 
+  const handleRunAway = () => {
+    audRef.current?.play();
+  }
+
+  const nominations = useMutation({
+    mutationFn: async (noms: Nomination) => {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const resp = await fetch(`http://localhost:3000/nominations`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(noms),
+      });
+      return resp.json();
+    },
+  });
+
+
+  const handleMovieNominations = (params: any) => {
+    console.log(params);
+    audRef.current?.play();
+    nominations.mutate(params);
+  };
+
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100">
-      <audio ref={audRef} autoPlay loop>
+      <audio ref={audRef}>
         <source src={bgAudio} type="audio/mpeg" />
         <track kind="captions" />
         Your browser does not support the audio element.
@@ -57,7 +84,7 @@ export default function SpooktoberFestLanding() {
             <h2 className="text-3xl font-bold mb-8 text-center">
               Nominate Your Spooky Movies
             </h2>
-            <NominationsForm />
+            <NominationsForm onMoviesNominated={handleMovieNominations} onRunAway={handleRunAway} />
             {/* <form onSubmit={handleSubmit} className="max-w-md mx-auto">
               <div className="mb-4">
                 <Label htmlFor="movie1">Movie 1</Label>
