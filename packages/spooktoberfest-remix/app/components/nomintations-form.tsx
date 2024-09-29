@@ -102,7 +102,7 @@ const NominationsForm = ({ lockedIn, onMoviesNominated, onRunAway }: Nominations
                 </Button>
               </AlertDialogTrigger>
 
-              <AlertDialogContent onEscapeKeyDown={(e) => e.preventDefault()}>
+              <AlertDialogContent onEscapeKeyDown={(e) => e.preventDefault()} className="top-[25%] md:top-[50%] lg:top-[50%]">
                 <AlertDialogHeader>
                   <AlertDialogTitle>Are You Daring Enough?</AlertDialogTitle>
                   <AlertDialogDescription>

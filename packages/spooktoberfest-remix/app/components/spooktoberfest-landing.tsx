@@ -9,6 +9,7 @@ import { Nomination } from "~/models/nominations";
 
 export default function SpooktoberFestLanding() {
   const audRef = createRef<HTMLAudioElement>();
+  const nomsLockedHeading = createRef<HTMLHeadingElement>();
   const [lockedIn, setLockedIn] = useState(false);
 
   const handleRunAway = () => {
@@ -37,6 +38,7 @@ export default function SpooktoberFestLanding() {
     audRef.current?.play();
     nominations.mutate(params);
     setLockedIn(true);
+    nomsLockedHeading.current?.scrollIntoView({ behavior: "smooth", block: 'start' });
   };
 
   return (
@@ -66,7 +68,7 @@ export default function SpooktoberFestLanding() {
 
         <section id="nominate" className="py-16">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold mb-8 text-center">
+            <h2 ref={nomsLockedHeading} className="text-3xl font-bold mb-8 text-center">
               {lockedIn
                 ? "Your Frightening Flicks are Locked and Loaded!"
                 : "Nominate Your Spookiest Movies"}
