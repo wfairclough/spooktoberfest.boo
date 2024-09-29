@@ -6,6 +6,7 @@ import NominationsForm from "./nomintations-form";
 import { useMutation } from "@tanstack/react-query";
 import { Nomination } from "~/models/nominations";
 
+
 export default function SpooktoberFestLanding() {
   const audRef = createRef<HTMLAudioElement>();
   const [lockedIn, setLockedIn] = useState(false);
@@ -17,12 +18,15 @@ export default function SpooktoberFestLanding() {
   const nominations = useMutation({
     mutationFn: async (noms: Nomination) => {
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      const resp = await fetch(`http://localhost:3000/nominations`, {
+      const data = new FormData();
+      data.append("name", noms.name);
+      data.append("email", noms.email);
+      for (const movieId of noms.movies) {
+        data.append("movieIds", movieId.toString());
+      }
+      const resp = await fetch(`/nominations`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(noms),
+        body: data,
       });
       return resp.json();
     },

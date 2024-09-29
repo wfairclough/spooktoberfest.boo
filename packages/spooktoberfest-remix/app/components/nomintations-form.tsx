@@ -17,9 +17,7 @@ import { Movie } from "../models/movies";
 import { Input } from "./ui/input";
 import { Nomination } from "~/models/nominations";
 import { Lock } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
 import ScaryMeter from "./scary-meter";
-import { ScaryMeterRating } from "~/models/scary-meter-rating";
 
 export interface NominationsFormProps {
   lockedIn: boolean;
