@@ -15,10 +15,7 @@ export class MoviesService {
   constructor(
     private readonly tmdbApiToken: string,
     private readonly cacheService: CacheService,
-  ) {
-    console.log('MoviesService initialized');
-    console.log('tmdbApiToken:', tmdbApiToken);
-  }
+  ) {}
 
   async searchMovies(
     query: string,

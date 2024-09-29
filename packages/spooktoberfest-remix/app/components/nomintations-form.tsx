@@ -17,6 +17,9 @@ import { Movie } from "../models/movies";
 import { Input } from "./ui/input";
 import { Nomination } from "~/models/nominations";
 import { Lock } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import ScaryMeter from "./scary-meter";
+import { ScaryMeterRating } from "~/models/scary-meter-rating";
 
 export interface NominationsFormProps {
   lockedIn: boolean;
@@ -30,6 +33,22 @@ const NominationsForm = ({ lockedIn, onMoviesNominated, onRunAway }: Nominations
   const [openMovieSearchDialog, setOpenMovieSearchDialog] = useState(false);
   const [selectedMovies, setSelectedMovies] = useState<Movie[]>([]);
 
+  const { isPending, isError, data, error } = useQuery({
+    queryKey: ["scarymetter", selectedMovies],
+    queryFn: async () => {
+      const resp = await Promise.allSettled(
+        selectedMovies.map((movie) => fetch(`/scary-meter-score/${movie.id}`))
+      );
+      const jsons = await Promise.all(resp.filter(r => r.status === 'fulfilled').map((r: any) => r.value.json()));
+      const ratings = jsons.reduce((acc, score, index) => {      
+        acc[selectedMovies[index].id] = score;
+        return acc;
+      }, {} as Record<number, ScaryMeterRating>);
+      console.log({ ratings, jsons });
+      return ratings;
+    },
+  });
+
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
@@ -40,6 +59,7 @@ const NominationsForm = ({ lockedIn, onMoviesNominated, onRunAway }: Nominations
     document.addEventListener("keydown", down);
     return () => document.removeEventListener("keydown", down);
   }, []);
+
 
   const handleMovieSelect = (movie: Movie) => {
     console.log("selected: ", movie);
@@ -107,12 +127,12 @@ const NominationsForm = ({ lockedIn, onMoviesNominated, onRunAway }: Nominations
                     These are your final nominations for Spooktoberfest 2024.
                     Once locked in, there's no turning back—no second chances,
                     no escape!
-
+                    <br />
+                    <br />
                     <form className="m-2 flex flex-col gap-2">
-                      <Input type="text" autoFocus placeholder="Name" name="name" value={name} onChange={(e) => setName(e.target.value)} />
-                      <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                      <Input type="text" autoFocus autoComplete="off" placeholder="Name" name="name" value={name} onChange={(e) => setName(e.target.value)} />
+                      <Input type="email" placeholder="Email" autoComplete="off" value={email} onChange={(e) => setEmail(e.target.value)} />
                     </form>
-
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -164,6 +184,10 @@ const NominationsForm = ({ lockedIn, onMoviesNominated, onRunAway }: Nominations
                 <Strong>{movie.title}</Strong>
                 <br />
                 {movie.overview}
+                <br />
+                { data?.[movie.id] && <ScaryMeter rating={data[movie.id]} movieId={movie.id} /> } 
+                { isPending && <Spinner /> }
+                { isError && error.message }
               </Text>
             </Card>
           </Box>
