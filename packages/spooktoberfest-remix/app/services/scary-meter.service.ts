@@ -1,14 +1,8 @@
 import { BrowserContext, chromium, devices } from "playwright";
 import { CacheService } from "./cache.service";
 import { ScaryMeterRating } from "~/models/scary-meter-rating";
+import { ConflictError } from "~/models/errors";
 
-export class ConflictException extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "ConflictException";
-    Object.setPrototypeOf(this, ConflictException.prototype);
-  }
-}
 
 const scaryMeterMovieUrlPrefix = `https://scarymeter.com/movie/`;
 
@@ -24,7 +18,7 @@ export class ScaryMeterService {
     const context = await browser.newContext(devices["Desktop Chrome"]);
     this.#context = context;
   }
-  
+
   async getContextInstance() {
     if (!this.#context) {
       await this.onApplicationBootstrap();
@@ -36,7 +30,11 @@ export class ScaryMeterService {
     const cacheKey = `ratings:${movieId}`;
     const cachedRatings = await this.cacheService.get(cacheKey);
     if (cachedRatings) {
-      return JSON.parse(cachedRatings);
+      const json = JSON.parse(cachedRatings);
+      if (json.error) {
+        throw new ConflictError(json.error);
+      }
+      return json;
     }
     const ctx = await this.getContextInstance();
     const page = await ctx.newPage();
@@ -55,9 +53,11 @@ export class ScaryMeterService {
       .first();
     const goreNumberLocator = page.locator("#goryMeterRatingNumber").first();
     await notScaryHeading
-      .waitFor({ state: "hidden", timeout: 50 })
-      .catch(() => {
-        throw new ConflictException("This is not a horror movie!");
+      .waitFor({ state: "hidden", timeout: 200 })
+      .catch(async (err) => {
+        console.error(err);
+        await this.cacheService.set(cacheKey, JSON.stringify({ error: 'This is not a horror movie!' }), { EX: 3600 * 24 * 30 });
+        throw new ConflictError("This is not a horror movie!");
       });
     const [
       overallRatingValue,

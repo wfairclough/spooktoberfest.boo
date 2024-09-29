@@ -41,7 +41,7 @@ const MovieCommandDialog = ({
     ...(data?.results?.map((movie: Movie) => ({
       ...movie,
       value: movie.id,
-      label: `${movie.title} (${movie.release_date.split("-")[0]})`,
+      label: movie.release_date ? `${movie.title} (${movie.release_date.split("-")[0]})` : movie.title,
     })) ?? []),
   ];
 

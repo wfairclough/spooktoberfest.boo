@@ -1,13 +1,46 @@
+import { Spinner } from "@radix-ui/themes";
+import { useQuery } from "@tanstack/react-query";
 import { Progress } from "~/components/ui/progress";
+import { ConflictError } from "~/models/errors";
 import { ScaryMeterRating } from "~/models/scary-meter-rating";
 
 export interface ScaryMeterProps {
-  rating: ScaryMeterRating;
   movieId: number;
 }
 
 const ScaryMeter = (props: ScaryMeterProps) => {
-  const { rating, movieId } = props;
+  const { movieId } = props;
+
+
+  const { isPending, isError, data: rating, error } = useQuery({
+    queryKey: ["scarymetter", movieId],
+    queryFn: async () => {
+      const resp = await fetch(`/scary-meter-score/${movieId}`);
+      if (resp.status === 409) {
+        const { message } = await resp.json();
+        throw new ConflictError(message);
+      }
+      const scaryMeterRating = await resp.json();
+      return scaryMeterRating as ScaryMeterRating;
+    },
+    retry: (failureCount, error) => {
+      if (error instanceof ConflictError) {
+        return false;
+      } else if (failureCount < 2) {
+        return true;
+      }
+      return false;
+    }
+  });
+
+  if (isPending) {
+    return <Spinner />;
+  }
+
+  if (isError) {
+    return <strong className="text-destructive">{error.message}</strong>;
+  }
+
   const overallRating = (rating?.overallRating ?? 0) * 10;
   const creepyRating = (rating?.creepyRating ?? 0) * 10;
   const jumpScareRating = (rating?.jumpScareRating ?? 0) * 10;

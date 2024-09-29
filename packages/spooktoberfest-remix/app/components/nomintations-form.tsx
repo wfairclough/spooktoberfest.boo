@@ -33,22 +33,6 @@ const NominationsForm = ({ lockedIn, onMoviesNominated, onRunAway }: Nominations
   const [openMovieSearchDialog, setOpenMovieSearchDialog] = useState(false);
   const [selectedMovies, setSelectedMovies] = useState<Movie[]>([]);
 
-  const { isPending, isError, data, error } = useQuery({
-    queryKey: ["scarymetter", selectedMovies],
-    queryFn: async () => {
-      const resp = await Promise.allSettled(
-        selectedMovies.map((movie) => fetch(`/scary-meter-score/${movie.id}`))
-      );
-      const jsons = await Promise.all(resp.filter(r => r.status === 'fulfilled').map((r: any) => r.value.json()));
-      const ratings = jsons.reduce((acc, score, index) => {      
-        acc[selectedMovies[index].id] = score;
-        return acc;
-      }, {} as Record<number, ScaryMeterRating>);
-      console.log({ ratings, jsons });
-      return ratings;
-    },
-  });
-
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
@@ -163,7 +147,7 @@ const NominationsForm = ({ lockedIn, onMoviesNominated, onRunAway }: Nominations
     <>
       <div className="grid gap-2">{nominationButtons}</div>
 
-      <div className="min-w-full flex justify-evenly items-center flex-col sm:flex-col sm:items-center md:flex-row lg:flex-row xl:flex-row">
+      <div className="min-w-full flex justify-evenly items-start flex-col sm:flex-col sm:items-start md:flex-row lg:flex-row xl:flex-row">
         {selectedMovies.map((movie) => (
           <Box key={movie.id} maxWidth="340px" className="mt-6">
             <Card size="2">
@@ -184,11 +168,8 @@ const NominationsForm = ({ lockedIn, onMoviesNominated, onRunAway }: Nominations
                 <Strong>{movie.title}</Strong>
                 <br />
                 {movie.overview}
-                <br />
-                { data?.[movie.id] && <ScaryMeter rating={data[movie.id]} movieId={movie.id} /> } 
-                { isPending && <Spinner /> }
-                { isError && error.message }
               </Text>
+              <ScaryMeter movieId={movie.id} /> 
             </Card>
           </Box>
         ))}
