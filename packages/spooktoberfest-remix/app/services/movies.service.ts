@@ -1,9 +1,7 @@
 import { Movie } from "~/models/movies";
-import { CacheService } from "./cache.service";
+import { CacheService, globalCacheService } from "./cache.service";
 
 const movieDbUrlPrefix = `https://api.themoviedb.org/3`;
-
-const ONLY_SHOW_HORRORS = false;
 
 export interface SearchResults<T> {
   page: number;
@@ -13,52 +11,49 @@ export interface SearchResults<T> {
 }
 
 export class MoviesService {
+
   constructor(
     private readonly tmdbApiToken: string,
     private readonly cacheService: CacheService,
-  ) {}
+  ) {
+    console.log('MoviesService initialized');
+    console.log('tmdbApiToken:', tmdbApiToken);
+  }
 
   async searchMovies(
     query: string,
     page: number = 1,
   ): Promise<SearchResults<Movie>> {
-    const url = encodeURI(
-      `https://api.themoviedb.org/3/search/movie?query=${query}&page=${page}`,
-    );
+    const url = encodeURI(`https://api.themoviedb.org/3/search/movie?query=${query}&page=${page}`);
     const response = await fetch(url, {
       headers: {
         Authorization: `Bearer ${this.tmdbApiToken}`,
-        Accept: "application/json",
+        Accept: 'application/json',
       },
     });
     const searchResults = await response.json();
     return searchResults;
   }
 
-  async searchHorrorMovies(query: string, page: number = 1) {
-    const url = encodeURI(
-      `https://api.themoviedb.org/3/search/movie?query=${query}&page=${page}`,
-    );
+  async searchHorrorMovies(
+    query: string,
+    page: number = 1,
+  ) {
+    const url = encodeURI(`https://api.themoviedb.org/3/search/movie?query=${query}&page=${page}`);
     const response = await fetch(url, {
       headers: {
         Authorization: `Bearer ${this.tmdbApiToken}`,
-        Accept: "application/json",
+        Accept: 'application/json',
       },
     });
     const searchResults = await response.json();
-    if (ONLY_SHOW_HORRORS) {
-      const horrorMovies = searchResults.results.filter((movie: any) => {
-        console.log(movie);
-        return (
-          movie.genre_ids?.includes(27) ||
-          movie.genre_ids?.includes(53) ||
-          movie.genre_ids?.includes(80)
-        );
-      });
-      const diff = searchResults.results.length - horrorMovies.length;
-      if (diff > 0) {
-        searchResults.results = horrorMovies;
-      }
+    const horrorMovies = searchResults.results.filter((movie: any) => {
+      console.log(movie);
+      return movie.genre_ids?.includes(27) || movie.genre_ids?.includes(53) || movie.genre_ids?.includes(80);
+    });
+    const diff = searchResults.results.length - horrorMovies.length;
+    if (diff > 0) {
+      searchResults.results = horrorMovies;
     }
     return searchResults;
   }
@@ -73,13 +68,17 @@ export class MoviesService {
     const response = await fetch(url, {
       headers: {
         Authorization: `Bearer ${this.tmdbApiToken}`,
-        Accept: "application/json",
+        Accept: 'application/json',
       },
     });
     const movieDetails = await response.json();
-    await this.cacheService.set(cacheKey, JSON.stringify(movieDetails), {
-      EX: 3600,
-    });
+    await this.cacheService.set(cacheKey, JSON.stringify(movieDetails), { EX: 3600 });
     return movieDetails;
   }
 }
+
+export const globalMoviesService = new MoviesService(
+  process.env.TMDB_API_TOKEN!,
+  globalCacheService,
+);
+
