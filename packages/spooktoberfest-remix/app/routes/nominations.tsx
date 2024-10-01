@@ -17,10 +17,12 @@ import {
 } from "~/components/ui/popover";
 import ScaryMeter from "~/components/scary-meter";
 import { ScrollArea } from "@radix-ui/themes";
+import { globalScaryMeterService } from "~/services/scary-meter.service";
+import { ScaryMeterRating } from "~/models/scary-meter-rating";
 
 const NominationSchema = z.object({
   key: z.string().regex(/^[0-9A-Z]{26}$/),
-  name: z.string().nonempty(),
+  name: z.string().min(1),
   email: z.string().email(),
   movieIds: z.array(z.number()),
 });
@@ -71,35 +73,64 @@ function hashEmail(email: string) {
 export async function loader({ request }: LoaderFunctionArgs) {
   const nomsKeys = await globalCacheService.keys("nominations:*");
   const jsonStrValues = await globalCacheService.mGet(nomsKeys);
-  const values = jsonStrValues.map((v) => JSON.parse(v)) as unknown as Partial<
+  const values = jsonStrValues.map((v) => v && JSON.parse(v)) as unknown as Partial<
     NominationData & { movies: Movie[] }
   >[];
+  const uniqueNoms = new Set<ScaryMeterRating>();
   for (const nom of values) {
     delete nom.email;
     nom.movies = [] as Movie[];
     for (const movieId of nom.movieIds ?? []) {
       const movie = await globalMoviesService.getMovieDetails(movieId + "");
+      const scaryScore = await globalScaryMeterService.getScaryMeterRating(movieId + '').catch(() => (null));
+      movie.scaryScore = scaryScore;
       nom.movies.push(movie);
+      if (scaryScore) {
+        uniqueNoms.add(scaryScore);
+      } else {
+        uniqueNoms.add({
+          overallRating: 0,
+          creepyRating: 0,
+          jumpScareRating: 0,
+          goreRating: 0,
+        });
+      }
     }
   }
+
+  const overallAverage = Array.from(uniqueNoms).reduce((acc, curr) => acc += curr.overallRating ?? 0, 0) / uniqueNoms.size;
+  const jumpScareAverage = Array.from(uniqueNoms).reduce((acc, curr) => acc += curr.jumpScareRating ?? 0, 0) / uniqueNoms.size;
+  const creepyAverage = Array.from(uniqueNoms).reduce((acc, curr) => acc += curr.creepyRating ?? 0, 0) / uniqueNoms.size;
+  const goreAverage = Array.from(uniqueNoms).reduce((acc, curr) => acc += curr.goreRating ?? 0, 0) / uniqueNoms.size;
 
   return json(
     {
       message: "Not found",
       values,
+      averageScaryScore: {
+        overallRating: overallAverage,
+        jumpScareRating: jumpScareAverage,
+        creepyRating: creepyAverage,
+        goreRating: goreAverage,
+      }
     },
     200,
   );
 }
 
 const NominationsRoute = () => {
-  const { message, values } = useLoaderData<typeof loader>();
+  const { message, values, averageScaryScore } = useLoaderData<typeof loader>();
   console.log(values);
   return (
     <>
       <section className="p-10">
-        <h1 className="font-bold text-4xl">Nominations</h1>
 
+        <h1 className="font-bold text-4xl">Scary meter score average from nominations</h1>
+        <div className="average-scary-score">
+          <ScaryMeter movieId={0} scaryMeterRating={averageScaryScore} />
+        </div>
+
+        <h1 className="font-bold text-4xl">Nominations</h1>
         <ol className="list-decimal list-outside">
           {values.map((nom) => (
             <li key={nom.key} className="">

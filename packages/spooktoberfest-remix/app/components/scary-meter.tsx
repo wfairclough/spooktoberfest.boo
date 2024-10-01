@@ -6,22 +6,26 @@ import { ScaryMeterRating } from "~/models/scary-meter-rating";
 
 export interface ScaryMeterProps {
   movieId: number;
+  scaryMeterRating?: ScaryMeterRating;
 }
 
 const ScaryMeter = (props: ScaryMeterProps) => {
-  const { movieId } = props;
+  const { movieId, scaryMeterRating } = props;
 
 
   const { isPending, isError, data: rating, error } = useQuery({
-    queryKey: ["scarymetter", movieId],
+    queryKey: ["scarymetter", movieId, scaryMeterRating],
     queryFn: async () => {
+      if (scaryMeterRating) {
+        return scaryMeterRating;
+      }
       const resp = await fetch(`/scary-meter-score/${movieId}`);
       if (resp.status === 409) {
         const { message } = await resp.json();
         throw new ConflictError(message);
       }
-      const scaryMeterRating = await resp.json();
-      return scaryMeterRating as ScaryMeterRating;
+      const rating = await resp.json();
+      return rating as ScaryMeterRating;
     },
     retry: (failureCount, error) => {
       if (error instanceof ConflictError) {
@@ -62,25 +66,25 @@ const ScaryMeter = (props: ScaryMeterProps) => {
           />
         </a>
       </div>
-      <h5 className="text-sm text-neutral-600">Overall {overallRating}%</h5>
+      <h5 className="text-sm text-neutral-600">Overall {overallRating.toFixed(2)}%</h5>
       <Progress
         indicatorClassName="bg-[#9BC53D]"
         value={overallRating ? overallRating : 0}
         getValueLabel={(value) => `Overall ${value}%`}
       />
-      <h5 className="text-sm text-neutral-600">Creepy {creepyRating}%</h5>
+      <h5 className="text-sm text-neutral-600">Creepy {creepyRating.toFixed(2)}%</h5>
       <Progress
         indicatorClassName="bg-[#5BC0EB]"
         value={creepyRating ? creepyRating : 0}
         getValueLabel={(value) => `Creepy ${value}%`}
       />
-      <h5 className="text-sm text-neutral-600">Jump Scare {jumpScareRating}%</h5>
+      <h5 className="text-sm text-neutral-600">Jump Scare {jumpScareRating.toFixed(2)}%</h5>
       <Progress
         indicatorClassName="bg-[#D138BF]"
         value={jumpScareRating ? jumpScareRating : 0}
         getValueLabel={(value) => `Jump Scare ${value}%`}
       />
-      <h5 className="text-sm text-neutral-600">Gore {goreRating}%</h5>
+      <h5 className="text-sm text-neutral-600">Gore {goreRating.toFixed(2)}%</h5>
       <Progress
         indicatorClassName="bg-[#e55934]"
         value={goreRating ? goreRating : 0}

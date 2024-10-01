@@ -1,5 +1,5 @@
 import { BrowserContext, chromium, devices } from "playwright";
-import { CacheService } from "./cache.service";
+import { CacheService, globalCacheService } from "./cache.service";
 import { ScaryMeterRating } from "~/models/scary-meter-rating";
 import { ConflictError } from "~/models/errors";
 
@@ -100,3 +100,8 @@ export class ScaryMeterService {
     return ratings;
   }
 }
+
+export const globalScaryMeterService = new ScaryMeterService(
+  globalCacheService,
+);
+
