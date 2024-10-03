@@ -56,7 +56,7 @@ const ScaryMeter = (props: ScaryMeterProps) => {
     goreRating,
   });
   return (
-    <div className="grid gap-2 p-4 m-4 bg-slate-100 rounded-md">
+    <div className="grid gap-2 p-4 m-4 bg-slate-100 rounded-md w-[100%]">
       <div className="grid items-center justify-center">
         <a href={`https://scarymeter.com/movie/${movieId}`} target="_blank" className="text-2xl font-bold">
           <img
