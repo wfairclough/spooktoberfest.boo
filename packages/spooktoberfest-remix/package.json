@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "build": "remix vite:build",
-    "dev": "remix vite:dev",
+    "dev": "op run --env-file=.env -- remix vite:dev",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
-    "start": "remix-serve ./build/server/index.js",
+    "start": "op run --env-file=.env -- remix-serve ./build/server/index.js",
     "deploy": "fly deploy",
     "typecheck": "tsc"
   },
