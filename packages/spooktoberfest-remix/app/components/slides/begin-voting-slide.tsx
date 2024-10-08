@@ -22,7 +22,7 @@ const style = {
 
 export function BeginVotingSlide({ data }: NodeProps<SlideNode>) {
   return (
-    <article className="slide nodrag m-16" style={style}>
+    <article className="slide nodrag m-4 md:m-16 transform scale-100 md:scale-150 xl:scale-250 grid items-center justify-center" style={style}>
     <Card className="w-full max-w-xl mx-auto bg-orange-100 border-2 border-orange-500 shadow-lg">
       <CardHeader className="text-center pb-2">
         <CardTitle className="text-5xl font-bold text-orange-800 flex items-center justify-center gap-2">

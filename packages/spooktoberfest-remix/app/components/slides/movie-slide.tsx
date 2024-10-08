@@ -19,6 +19,7 @@ export type SlideData = {
 const style = {
   width: `${SLIDE_WIDTH}`,
   height: `${SLIDE_HEIGHT}`,
+  maxWidth: '500px',
 } satisfies React.CSSProperties;
 
 export function MovieSlide({ data }: NodeProps<SlideNode>) {
@@ -29,7 +30,7 @@ export function MovieSlide({ data }: NodeProps<SlideNode>) {
         <MoviePoster className="max-h-[35dvh] lg:max-h-[70dvh]" movieId={data.movieId} />
         <MovieSummary movieId={data.movieId} />
         <h4>Nominated By:</h4>
-        <ul className="list-disc text-lg grid gap-1 grid-cols-3 lg:grid-cols-6 w-90">
+        <ul className="list-disc list-inside text-lg grid gap-6 justify-items-center w-full p-6" style={{gridTemplateColumns: 'repeat(auto-fit, minmax(85px, 1fr))'}}>
           {data.nominees.map((nominee) => (<li key={nominee}>{nominee}</li>))}
         </ul>
         <ScaryMeter className="max-h-[35dvh] lg:max-h-[50dvh]" movieId={data.movieId} />

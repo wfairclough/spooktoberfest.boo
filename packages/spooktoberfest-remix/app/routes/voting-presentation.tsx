@@ -29,6 +29,7 @@ const nodeTypes = {
 const mainStyle = {
   gridTemplateColumns: "3rem 1fr 3rem",
   gridTemplateRows: 'auto',
+  marginInline: 'auto',
 };
 
 export interface VotingPresentationProps {
@@ -134,7 +135,7 @@ const VotingPresentation = ({ nominations }: VotingPresentationProps) => {
         <track kind="captions" />
         Your browser does not support the audio element.
       </audio>
-      <main className="dark w-[100vw] h-[100dvh] grid" style={mainStyle}>
+      <main className="dark w-[100vw] h-[100dvh] 2xl:w-[80dvh] grid" style={mainStyle}>
         <button
           onClick={handlePrevSlide}
           className="grid items-center justify-center"
