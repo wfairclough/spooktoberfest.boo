@@ -3,6 +3,7 @@ import ScaryMeter from "../scary-meter";
 import { MoviePoster } from "../movie-poster";
 import { CONSTANTS } from "./constants";
 import { MovieTitle } from "../movie-title";
+import { MovieSummary } from "../movie-summary";
 
 export const SLIDE_WIDTH = CONSTANTS.SLIDE_WIDTH;
 export const SLIDE_HEIGHT = CONSTANTS.SLIDE_HEIGHT;
@@ -25,6 +26,8 @@ export function MovieSlide({ data }: NodeProps<SlideNode>) {
       <div className="grid place-items-center h-[90%]">
         <MovieTitle movieId={data.movieId} />
         <MoviePoster className="max-h-[70dvh]" movieId={data.movieId} />
+        <MovieSummary movieId={data.movieId} />
+        <h4>Nominated By:</h4>
         <ul className="list-disc text-lg">
           {data.nominees.map((nominee) => (<li key={nominee}>{nominee}</li>))}
         </ul>
