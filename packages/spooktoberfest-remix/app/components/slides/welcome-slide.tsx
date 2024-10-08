@@ -14,8 +14,8 @@ export type SlideData = {
 };
 
 const style = {
-  width: `${SLIDE_WIDTH}px`,
-  height: `${SLIDE_HEIGHT}px`,
+  width: `${SLIDE_WIDTH}`,
+  height: `${SLIDE_HEIGHT}`,
 } satisfies React.CSSProperties;
 
 export function WelcomeSlide({ data: { onClick } }: NodeProps<SlideNode>) {

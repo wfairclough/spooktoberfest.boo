@@ -34,7 +34,7 @@ export const MovieTitle = (props: MovieTitleProps) => {
   const title = movie.release_date?.split('-')?.[0] ? `${movie.title} (${movie.release_date?.split('-')?.[0]})` : movie.title;
   console.log("MovieTitle", { movie });
   return (
-    <h1 className="text-4xl font-bold" {...rest}>
+    <h1 className="sm:text-lg lg:text-4xl font-bold" {...rest}>
       { title }
     </h1>
   );

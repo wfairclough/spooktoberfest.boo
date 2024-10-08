@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import { Spinner } from "@radix-ui/themes";
 import { useQuery } from "@tanstack/react-query";
 import { Progress } from "~/components/ui/progress";
@@ -7,10 +8,11 @@ import { ScaryMeterRating } from "~/models/scary-meter-rating";
 export interface ScaryMeterProps {
   movieId: number;
   scaryMeterRating?: ScaryMeterRating;
+  className?: string;
 }
 
 const ScaryMeter = (props: ScaryMeterProps) => {
-  const { movieId, scaryMeterRating } = props;
+  const { movieId, scaryMeterRating, className } = props;
 
 
   const { isPending, isError, data: rating, error } = useQuery({
@@ -56,7 +58,7 @@ const ScaryMeter = (props: ScaryMeterProps) => {
     goreRating,
   });
   return (
-    <div className="grid gap-2 p-4 m-4 bg-slate-100 rounded-md w-[100%]">
+    <div className={clsx('grid gap-2 p-4 m-4 bg-slate-100 rounded-md w-[100%]', className)}>
       <div className="grid items-center justify-center">
         <a href={`https://scarymeter.com/movie/${movieId}`} target="_blank" rel="noreferrer" className="text-2xl font-bold">
           <img

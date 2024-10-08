@@ -27,7 +27,8 @@ const nodeTypes = {
 };
 
 const mainStyle = {
-  'gridTemplateColumns': '5rem 1fr 5rem',
+  gridTemplateColumns: "3rem 1fr 3rem",
+  gridTemplateRows: 'auto',
 };
 
 export interface VotingPresentationProps {
@@ -50,30 +51,33 @@ const VotingPresentation = ({ nominations }: VotingPresentationProps) => {
     }
   }, [isPlaying]);
 
-  const nodes = useMemo(() => [
-    {
-      id: "0",
-      type: "welcomeSlide",
-      position: { x: 0, y: 0 },
-      data: {
-        onClick: () => {
-          setIsPlaying(true);
-          handleNextSlide();
-        }
-      }
-    },
-    ...nominations.map((nom, i) => ({
-      id: i + 1 + "",
-      type: "movieSlide",
-      position: { x: 3000 * (i + 1), y: 0 },
-      data: { movieId: nom.id, nominees: nom.nominees },
-    })),
-    {
-      id: (nominations.length + 1) + "",
-      type: "lastSlide",
-      position: { x: -3000, y: 0 },
-    }
-  ], [nominations]);
+  const nodes = useMemo(
+    () => [
+      {
+        id: "0",
+        type: "welcomeSlide",
+        position: { x: 0, y: 0 },
+        data: {
+          onClick: () => {
+            setIsPlaying(true);
+            handleNextSlide();
+          },
+        },
+      },
+      ...nominations.map((nom, i) => ({
+        id: i + 1 + "",
+        type: "movieSlide",
+        position: { x: 3000 * (i + 1), y: 0 },
+        data: { movieId: nom.id, nominees: nom.nominees },
+      })),
+      {
+        id: nominations.length + 1 + "",
+        type: "lastSlide",
+        position: { x: -3000, y: 0 },
+      },
+    ],
+    [nominations],
+  );
 
   const defaultDuration = 250;
 
@@ -131,10 +135,22 @@ const VotingPresentation = ({ nominations }: VotingPresentationProps) => {
         Your browser does not support the audio element.
       </audio>
       <main className="dark w-[100vw] h-[100dvh] grid" style={mainStyle}>
-        <button onClick={handlePrevSlide} className="grid items-center justify-center">
-          {currentSlide > 1 ? <ChevronLeft /> : ''}
+        <button
+          onClick={handlePrevSlide}
+          className="grid items-center justify-center"
+          style={{
+            gridColumn: "1 / 2",
+            gridRow: "1 / -1",
+            zIndex: 2,
+          }}
+        >
+          {currentSlide > 1 ? <ChevronLeft /> : ""}
         </button>
         <ReactFlow
+          style={{
+            gridColumn: "1 / -1",
+            gridRow: "1 / -1",
+          }}
           nodes={nodes}
           nodeTypes={nodeTypes}
           panOnDrag={false}
@@ -144,8 +160,20 @@ const VotingPresentation = ({ nominations }: VotingPresentationProps) => {
           fitView
           fitViewOptions={{ nodes: [{ id: currentSlide + "" }] }}
         />
-        <button onClick={handleNextSlide} className="grid items-center justify-center">
-          {currentSlide > 0 && currentSlide < nodes.length - 1 ? <ChevronRight /> : ''}
+        <button
+          onClick={handleNextSlide}
+          className="grid items-center justify-center"
+          style={{
+            gridColumn: "3 / 4",
+            gridRow: "1 / -1",
+            zIndex: 2,
+          }}
+        >
+          {currentSlide > 0 && currentSlide < nodes.length - 1 ? (
+            <ChevronRight />
+          ) : (
+            ""
+          )}
         </button>
       </main>
     </>

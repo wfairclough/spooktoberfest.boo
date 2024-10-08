@@ -1,5 +1,5 @@
 export const CONSTANTS = {
-  SLIDE_WIDTH: 800,
-  SLIDE_HEIGHT: 1000,
+  SLIDE_WIDTH: '100vw',
+  SLIDE_HEIGHT: '90dvh',
 };
 
