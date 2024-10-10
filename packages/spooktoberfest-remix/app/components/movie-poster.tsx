@@ -1,6 +1,8 @@
 import { Spinner } from "@radix-ui/themes";
 import { useQuery } from "@tanstack/react-query";
 import { Movie } from "~/models/movies";
+import './movie-poster.css';
+import { PlayCircle } from "lucide-react";
 
 export interface ScaryMeterProps {
   movieId: number;
@@ -32,15 +34,24 @@ export const MoviePoster = (props: ScaryMeterProps) => {
     return <strong className="text-destructive">{error.message}</strong>;
   }
 
+  const hasTrailer = !!movie.trailerUrl;
+  const ImgWrapper = hasTrailer ? "a" : "div";
+  const imgProps = hasTrailer ? { href: movie.trailerUrl, target: "_blank" } : {};
+
   return (
     <div>
       <div className="grid place-items-center">
-        <img
-          src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-          alt={movie.title}
-          className="h-auto w-auto"
-          {...rest}
-        />
+        <ImgWrapper {...imgProps} className="grid">
+          <div className="overlay grid w-full h-full place-items-center">
+            <PlayCircle className="w-16 h-16 text-white" />
+          </div>
+          <img
+            src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+            alt={movie.title}
+            className="h-auto w-auto"
+            {...rest}
+          />
+        </ImgWrapper>
       </div>
     </div>
   );
