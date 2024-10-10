@@ -3,7 +3,6 @@ import { globalCacheService } from "../services/cache.service";
 import { MovieNomination } from "../models/movies";
 import { globalMoviesService } from "../services/movies.service";
 import { json, useLoaderData } from "@remix-run/react";
-import { Code } from "@radix-ui/themes";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const nomsKeys = await globalCacheService.keys("nominations:*");

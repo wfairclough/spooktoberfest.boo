@@ -26,7 +26,10 @@ const style = {
 
 export function WelcomeSlide({ data: { onClick } }: NodeProps<SlideNode>) {
   return (
-    <article className="slide nodrag m-4 md:m-16 transform scale-[0.9] md:scale-150 xl:scale-250 grid items-center justify-center" style={style}>
+    <article
+      className="slide nodrag m-4 md:m-16 transform scale-[0.9] md:scale-150 xl:scale-250 grid items-center justify-center"
+      style={style}
+    >
       <Card className="w-full max-w-xl mx-auto bg-orange-100 border-2 border-orange-500 shadow-lg">
         <CardHeader className="text-center pb-2">
           <CardTitle className="text-5xl font-bold text-orange-800 flex items-center justify-center gap-2">
@@ -46,7 +49,9 @@ export function WelcomeSlide({ data: { onClick } }: NodeProps<SlideNode>) {
           </p>
           <div className="flex items-center justify-center text-orange-600 font-semibold text-lg">
             <Calendar className="w-5 h-5 mr-2" />
-            <span>Voting begins October 7th</span>
+            <span>
+              Voting begins <del>October 7th</del> when I say it does
+            </span>
           </div>
         </CardContent>
         <CardFooter className="flex justify-center pb-6">

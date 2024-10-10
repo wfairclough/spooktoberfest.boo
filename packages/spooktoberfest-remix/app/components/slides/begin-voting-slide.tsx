@@ -1,8 +1,7 @@
 import { type Node, type NodeProps } from "@xyflow/react";
 import { CONSTANTS } from "./constants";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "~/components/ui/card"
-import { Button } from "~/components/ui/button"
-import { Skull, Vote, Calendar } from "lucide-react"
+import { Skull, Vote } from "lucide-react"
 import { Link } from "@remix-run/react";
 
 export const SLIDE_WIDTH = CONSTANTS.SLIDE_WIDTH;

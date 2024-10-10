@@ -18,12 +18,14 @@ import { useLoaderData } from "@remix-run/react";
 import { WelcomeSlide } from "~/components/slides/welcome-slide";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { BeginVotingSlide } from "../components/slides/begin-voting-slide";
+import { VotingStartsShortlySlide } from "~/components/slides/voting-starts-shortly-slide";
 
 const nodeTypes = {
   slide: Slide,
   movieSlide: MovieSlide,
   welcomeSlide: WelcomeSlide,
   lastSlide: BeginVotingSlide,
+  votingStartsShortly: VotingStartsShortlySlide,
 };
 
 const mainStyle = {
@@ -73,7 +75,7 @@ const VotingPresentation = ({ nominations }: VotingPresentationProps) => {
       })),
       {
         id: nominations.length + 1 + "",
-        type: "lastSlide",
+        type: "votingStartsShortly",
         position: { x: -3000, y: 0 },
       },
     ],

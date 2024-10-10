@@ -1,4 +1,4 @@
-import type { MetaFunction } from "@remix-run/node";
+import { redirect, type MetaFunction } from "@remix-run/node";
 import SpooktoberFestLanding from "../components/spooktoberfest-landing";
 
 export const meta: MetaFunction = () => {
@@ -8,6 +8,13 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export default function Index() {
-  return <SpooktoberFestLanding />;
+// export default function Index() {
+//   return <SpooktoberFestLanding />;
+// }
+//
+
+// Redirect to /voting-presentation instead
+
+export const loader = () => {
+  return redirect("/voting-presentation");
 }
