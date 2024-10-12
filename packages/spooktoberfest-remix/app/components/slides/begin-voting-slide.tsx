@@ -26,7 +26,7 @@ export function BeginVotingSlide({ data }: NodeProps<SlideNode>) {
       <CardHeader className="text-center pb-2">
         <CardTitle className="text-5xl font-bold text-orange-800 flex items-center justify-center gap-2">
           <Skull className="w-8 h-8" />
-          Begin Voting
+          Votin' Time
           <Skull className="w-8 h-8" />
         </CardTitle>
       </CardHeader>
@@ -34,6 +34,7 @@ export function BeginVotingSlide({ data }: NodeProps<SlideNode>) {
         <p className="text-xl font-semibold text-orange-700">
           It is time to cast your votes!
         </p>
+        <img alt="Ayooo!" src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExd2E0NnlzeDJxam5jbnBpNXY0czVnbGNsM3Jqa255ZzFpa2tiNDdpcSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/B0WLxvvmSl8M2fksc4/giphy.gif" />
         <p className="text-lg text-gray-700">
           You will be given 3 votes. The order of your votes matters, so choose wisely!
         </p>

@@ -24,7 +24,7 @@ const nodeTypes = {
   slide: Slide,
   movieSlide: MovieSlide,
   welcomeSlide: WelcomeSlide,
-  lastSlide: BeginVotingSlide,
+  beginVotingSlide: BeginVotingSlide,
   votingStartsShortly: VotingStartsShortlySlide,
 };
 
@@ -75,7 +75,7 @@ const VotingPresentation = ({ nominations }: VotingPresentationProps) => {
       })),
       {
         id: nominations.length + 1 + "",
-        type: "votingStartsShortly",
+        type: "beginVotingSlide",
         position: { x: -3000, y: 0 },
       },
     ],
