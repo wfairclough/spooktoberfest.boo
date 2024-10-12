@@ -62,25 +62,25 @@ export default function VotingRoute() {
       return 3;
     }
     return null;
-  }
+  };
 
   const onSelectedChanged = (movieId: number, num: number | null) => {
+    console.log(`onSelectedChange`, { movieId, num });
     if (num === 1) {
       setNum1Movie(movieId);
     } else if (num === 2) {
       setNum2Movie(movieId);
     } else if (num === 3) {
       setNum3Movie(movieId);
-    } else {
-      if (num1Movie === movieId) {
-        setNum1Movie(null);
-      } else if (num2Movie === movieId) {
-        setNum2Movie(null);
-      } else if (num3Movie === movieId) {
-        setNum3Movie(null);
-      }
     }
-  }
+    if (num1Movie === movieId) {
+      setNum1Movie(null);
+    } else if (num2Movie === movieId) {
+      setNum2Movie(null);
+    } else if (num3Movie === movieId) {
+      setNum3Movie(null);
+    }
+  };
 
   const handleOnSeenToggle = (movieId: number) => {
     if (seenMovies.has(movieId)) {
@@ -89,6 +89,7 @@ export default function VotingRoute() {
       seenMovies.add(movieId);
     }
     setSeenMovies(new Set(seenMovies));
+    console.log(`setSeenMovies`, { seenMovies });
   };
 
   return (
