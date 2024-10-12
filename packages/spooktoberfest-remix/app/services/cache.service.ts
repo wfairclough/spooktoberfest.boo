@@ -20,7 +20,7 @@ class RedisScanIterable implements AsyncIterable<string> {
     const loadBatch = async (): Promise<void> => {
       if (isDone) return;
 
-      const [newCursor, keys] = await this.redis.scan(cursor, {
+      const { cursor: newCursor, keys } = await this.redis.scan(cursor, {
         MATCH: this.pattern,
         COUNT: this.count
       });

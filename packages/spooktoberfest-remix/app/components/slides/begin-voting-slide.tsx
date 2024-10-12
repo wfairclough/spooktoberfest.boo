@@ -41,7 +41,7 @@ export function BeginVotingSlide({ data }: NodeProps<SlideNode>) {
       </CardContent>
       <CardFooter className="flex justify-center pb-6">
         <Link
-        to="/vote"
+        to="/get-voter-card"
         className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-full flex items-center gap-2 text-xl">
           <Vote className="w-5 h-5" />
           Go Vote

@@ -10,10 +10,24 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import { ActionFunctionArgs, json } from "@remix-run/node";
+import { ActionFunctionArgs, json, LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData, Form, redirect } from "@remix-run/react";
+import { getMoviegoers } from "~/services/get-moviegoers";
+import { signVoterCard } from "~/services/sign-voter-card";
+
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const search = new URL(request.url).searchParams;
+  const error = search.get("error") as string | null;
+  const cookie = request.headers.get("Cookie");
+  const email = cookie?.split(";").find((c) => c.trim().startsWith("email="))?.split("=")[1] ?? "";
+  return json({
+    error,
+    email,
+  });
+}
 
 export default function GetVoterCard() {
+  const { email, error } = useLoaderData<typeof loader>();
   return (
     <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
       <Card className="w-full max-w-md bg-gray-800 text-gray-100">
@@ -30,6 +44,7 @@ export default function GetVoterCard() {
             To prevent rampant voter fraud, we must verify your identity. Please
             enter the email address you provided during nomination.
           </p>
+          {error ? <p className="mb-4 text-sm text-red-500">{error}</p> : <></>}
           <Form method="POST" action="/get-voter-card">
             <div className="space-y-4">
               <div className="space-y-2">
@@ -43,6 +58,7 @@ export default function GetVoterCard() {
                   id="email"
                   type="email"
                   name="email"
+                  defaultValue={email}
                   placeholder="Hannibal_Lecter@yahoo.com"
                   required
                   className="bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400"
@@ -67,19 +83,42 @@ export default function GetVoterCard() {
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const email = formData.get("email") as string;
-  console.log('Email received', email);
+  console.log("Email received", email);
+
+  const movieGoers = await getMoviegoers();
+  const moviegoer = movieGoers.find(
+    (movieGoer) => movieGoer.email.toLowerCase() === email.toLowerCase(),
+  );
+
+  if (!moviegoer) {
+    return redirect(
+      `/get-voter-card?error=${encodeURIComponent("Oh honey, you tried your best, but you're not on the list 🤷‍♂️. Think hard about what email you used.")}`,
+    );
+  }
+
+  const jwt = await signVoterCard({
+    email: email.toLowerCase(),
+    key: moviegoer.key,
+    name: moviegoer.name,
+  });
+
   const resend = new Resend(process.env.RESEND_API_KEY);
 
   await resend.emails.send({
     from: "SpookyBot <spooky_bot@vote.spooktoberfest.boo>",
     to: [email],
     subject: "👻 So you want to vote, huh? 👻",
-    html: "<p>it works!</p>",
+    html: `
+      <p>Hey there, ${moviegoer.name}! 👋</p>
+      <p>It's time to get spooky! Click the link below to get your voter card and access the voting page.</p>
+      <p><a href="${process.env.ROOT_URL}/verify-voter-card?voter_card=${jwt}" class="text-orange-500">Get Voter Card</a></p>
+      <p>Thanks for participating in Spooktoberfest! 🎃👻</p>
+    `,
   });
 
   return redirect("/check-email", {
     headers: {
-      "Set-Cookie": `email=${formData.get("email")}; Path=/; HttpOnly`,
+      "Set-Cookie": `email=${formData.get("email")}; Path=/; HttpOnly; Max-Age=172800`,
     },
   });
 }
