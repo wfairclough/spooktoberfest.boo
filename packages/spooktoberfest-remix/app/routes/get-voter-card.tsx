@@ -19,7 +19,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const search = new URL(request.url).searchParams;
   const error = search.get("error") as string | null;
   const cookie = request.headers.get("Cookie");
-  const email = cookie?.split(";").find((c) => c.trim().startsWith("email="))?.split("=")[1] ?? "";
+  const email =
+    cookie
+      ?.split(";")
+      .find((c) => c.trim().startsWith("email="))
+      ?.split("=")[1] ?? "";
   return json({
     error,
     email,
@@ -102,19 +106,27 @@ export async function action({ request }: ActionFunctionArgs) {
     name: moviegoer.name,
   });
 
-  const resend = new Resend(process.env.RESEND_API_KEY);
+  try {
+    const resend = new Resend(process.env.RESEND_API_KEY);
 
-  await resend.emails.send({
-    from: "SpookyBot <spooky_bot@vote.spooktoberfest.boo>",
-    to: [email],
-    subject: "👻 So you want to vote, huh? 👻",
-    html: `
+    await resend.emails.send({
+      from: "SpookyBot <spooky_bot@vote.spooktoberfest.boo>",
+      to: [email],
+      subject: "👻 So you want to vote, huh? 👻",
+      html: `
       <p>Hey there, ${moviegoer.name}! 👋</p>
       <p>It's time to get spooky! Click the link below to get your voter card and access the voting page.</p>
       <p><a href="${process.env.ROOT_URL}/verify-voter-card?voter_card=${jwt}" class="text-orange-500">Get Voter Card</a></p>
       <p>Thanks for participating in Spooktoberfest! 🎃👻</p>
     `,
-  });
+    });
+  } catch (err) {
+    return redirect(
+      `/get-voter-card?error=${encodeURIComponent(
+        "Oh no! Something went wrong. Please try again later.",
+      )}`,
+    );
+  }
 
   return redirect("/check-email", {
     headers: {
