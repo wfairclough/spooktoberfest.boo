@@ -1,7 +1,7 @@
 import { json, LoaderFunctionArgs } from "@remix-run/node";
-import { globalCacheService } from "~/services/cache.service";
+import { globalCacheService } from "~/services/cache.server";
 import { Movie, MovieNomination } from "~/models/movies";
-import { globalMoviesService } from "~/services/movies.service";
+import { globalMoviesService } from "~/services/movies.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const nomsKeys = await globalCacheService.keys("nominations:*");

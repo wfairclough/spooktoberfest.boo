@@ -2,6 +2,7 @@
   display: grid;
 }
 
+.poster.selected .overlay,
 .poster .overlay {
   display: none;
   grid-column: 1 / -1;
@@ -10,6 +11,7 @@
   opacity: 0.8;
 }
 
+.poster.selected .overlay,
 .poster:hover .overlay {
   display: grid;
   place-items: center;

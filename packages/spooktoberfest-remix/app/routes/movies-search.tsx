@@ -1,6 +1,6 @@
 import { json, LoaderFunctionArgs } from "@remix-run/node";
-import { globalCacheService } from "~/services/cache.service";
-import { MoviesService } from "~/services/movies.service";
+import { globalCacheService } from "~/services/cache.server";
+import { MoviesService } from "~/services/movies.server";
 
 const moviesService = new MoviesService(
   process.env.TMDB_API_TOKEN!,

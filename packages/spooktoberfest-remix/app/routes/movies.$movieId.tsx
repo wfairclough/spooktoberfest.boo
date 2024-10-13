@@ -1,5 +1,5 @@
 import { json, LoaderFunctionArgs } from "@remix-run/node";
-import { globalMoviesService } from "~/services/movies.service";
+import { globalMoviesService } from "~/services/movies.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   console.log("Get Movie", { params });

@@ -12,8 +12,9 @@ import {
 } from "~/components/ui/card";
 import { ActionFunctionArgs, json, LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData, Form, redirect } from "@remix-run/react";
-import { getMoviegoers } from "~/services/get-moviegoers";
-import { signVoterCard } from "~/services/sign-voter-card";
+import { getMoviegoers } from "~/services/get-moviegoers.server";
+import { signVoterCard } from "~/services/sign-voter-card.server";
+import { emailCookie } from "~/services/cookie.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const search = new URL(request.url).searchParams;
@@ -128,9 +129,12 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
+  const cookie = (await emailCookie.parse(request.headers.get("Cookie"))) ?? {};
+  cookie.email = email;
+
   return redirect("/check-email", {
     headers: {
-      "Set-Cookie": `email=${formData.get("email")}; Path=/; HttpOnly; Max-Age=172800`,
+      "Set-Cookie": await emailCookie.serialize(cookie),
     },
   });
 }

@@ -1,5 +1,5 @@
 import { Moviegoer } from "~/models/moviegoer";
-import { globalCacheService } from "./cache.service";
+import { globalCacheService } from "./cache.server";
 
 export const getMoviegoers = async (): Promise<Moviegoer[]> => {
   const moviegoers: Moviegoer[] = [];

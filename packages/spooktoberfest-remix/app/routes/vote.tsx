@@ -1,12 +1,26 @@
 import { useState } from "react";
 import { useToast } from "~/hooks/use-toast";
-import { LoaderFunctionArgs } from "@remix-run/node";
+import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 
-import { globalCacheService } from "../services/cache.service";
+import { globalCacheService } from "../services/cache.server";
 import { MovieNomination } from "../models/movies";
-import { globalMoviesService } from "../services/movies.service";
-import { json, useLoaderData } from "@remix-run/react";
+import { globalMoviesService } from "../services/movies.server";
+import { Form, json, redirect, useLoaderData } from "@remix-run/react";
 import { VoteMovieCard } from "~/components/vote-movie-card";
+import { Button } from "~/components/ui/button";
+import { SendHorizontal, Skull } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "~/components/ui/alert-dialog";
+import { Input } from "~/components/ui/input";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
@@ -92,6 +106,11 @@ export default function VotingRoute() {
     console.log(`setSeenMovies`, { seenMovies });
   };
 
+  const canSubmit =
+    num1Movie !== null && num2Movie !== null && num3Movie !== null;
+
+  const onRunAway = () => {};
+
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100">
       <div className="flex flex-col gap-4 mx-auto p-4">
@@ -116,6 +135,66 @@ export default function VotingRoute() {
           ))}
         </div>
       </div>
+      {canSubmit ? (
+        <>
+          <AlertDialog>
+            <AlertDialogTrigger>
+              <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2">
+                <Button className="bg-orange-500 text-primary-foreground hover:bg-orange/90 px-12 py-8 rounded-full shadow-lg">
+                  Submit your votes
+                  <SendHorizontal className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            </AlertDialogTrigger>
+
+            <AlertDialogContent
+              onEscapeKeyDown={(e) => e.preventDefault()}
+              className="top-[25%] md:top-[50%] lg:top-[50%]"
+            >
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  These are your final movie votes for Spooktoberfest 2024. Once
+                  locked in, there's no turning back—no second chances, no
+                  escape!
+                  <br />
+                  <br />
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel onClick={onRunAway}>
+                  Run Away
+                </AlertDialogCancel>
+
+                <Form action="/vote" method="post">
+                  <Input type="hidden" name="num1" value={num1Movie + ""} />
+                  <Input type="hidden" name="num2" value={num2Movie + ""} />
+                  <Input type="hidden" name="num3" value={num3Movie + ""} />
+                  {Array.from(seenMovies).map((movieId) => (
+                    <input key={movieId} type="hidden" name="seen[]" value={movieId + ""} />
+                  ))}
+                  <AlertDialogAction type="submit">
+                    Seal My Fate!
+                    <Skull className="ml-2 h-4 w-4" />
+                  </AlertDialogAction>
+                </Form>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </>
+      ) : (
+        <></>
+      )}
     </div>
   );
+}
+
+export async function action({ request }: ActionFunctionArgs) {
+  const formData = await request.formData();
+  const num1 = formData.get("num1") as string;
+  const num2 = formData.get("num2") as string;
+  const num3 = formData.get("num3") as string;
+  const seen = formData.getAll("seen[]");
+  console.log({ num1, num2, num3, seen });
+  return redirect("/see-you-soon", {});
 }

@@ -1,5 +1,5 @@
 import { Movie } from "~/models/movies";
-import { CacheService, globalCacheService } from "./cache.service";
+import { CacheService, globalCacheService } from "./cache.server";
 
 const movieDbUrlPrefix = `https://api.themoviedb.org/3`;
 

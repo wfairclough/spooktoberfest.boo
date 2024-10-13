@@ -1,7 +1,7 @@
 import { BrowserContext, chromium, devices } from "playwright";
-import { CacheService, globalCacheService } from "./cache.service";
-import { ScaryMeterRating } from "~/models/scary-meter-rating";
 import { ConflictError } from "~/models/errors";
+import { ScaryMeterRating } from "~/models/scary-meter-rating";
+import { CacheService, globalCacheService } from "./cache.server";
 
 
 const scaryMeterMovieUrlPrefix = `https://scarymeter.com/movie/`;

@@ -1,6 +1,6 @@
 import { json, LoaderFunctionArgs } from "@remix-run/node";
-import { globalCacheService } from "~/services/cache.service";
-import { ScaryMeterService } from "~/services/scary-meter.service";
+import { globalCacheService } from "~/services/cache.server";
+import { ScaryMeterService } from "~/services/scary-meter.server";
 
 const scaryMeterService = new ScaryMeterService(
   globalCacheService,

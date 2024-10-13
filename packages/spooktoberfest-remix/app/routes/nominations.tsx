@@ -5,10 +5,10 @@ import {
   type ActionFunctionArgs,
 } from "@remix-run/node";
 import { z } from "zod";
-import { globalCacheService } from "~/services/cache.service";
+import { globalCacheService } from "~/services/cache.server";
 import ULID from "ulid";
 import { useLoaderData } from "@remix-run/react";
-import { globalMoviesService } from "~/services/movies.service";
+import { globalMoviesService } from "~/services/movies.server";
 import { Movie } from "~/models/movies";
 import {
   Popover,
@@ -17,7 +17,7 @@ import {
 } from "~/components/ui/popover";
 import ScaryMeter from "~/components/scary-meter";
 import { ScrollArea } from "@radix-ui/themes";
-import { globalScaryMeterService } from "~/services/scary-meter.service";
+import { globalScaryMeterService } from "~/services/scary-meter.server";
 import { ScaryMeterRating } from "~/models/scary-meter-rating";
 
 const NominationSchema = z.object({

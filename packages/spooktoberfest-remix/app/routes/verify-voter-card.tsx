@@ -1,5 +1,6 @@
 import { LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { verifyVoterCard } from "~/services/sign-voter-card";
+import { voterCardCookie } from "~/services/cookie.server";
+import { verifyVoterCard } from "~/services/sign-voter-card.server";
 
 const isProd = process.env.SPK_ENV === "prod";
 
@@ -8,14 +9,18 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const jwt = search.get("voter_card") as string;
   try {
     const voterCard = await verifyVoterCard(jwt);
+    const cookie =
+      (await voterCardCookie.parse(request.headers.get("Cookie"))) ?? {};
+    cookie.voter_card = jwt;
     return redirect(`/vote?name=${voterCard.name}`, {
-      headers: isProd
-        ? {
-            "Set-Cookie": `voter_card=${jwt}; Path=/; HttpOnly; Secure; SameSite`,
-          }
-        : {
-            "Set-Cookie": `voter_card=${jwt}; Path=/; HttpOnly; SameSite`,
-          },
+      headers: {
+        "Set-Cookie": await voterCardCookie.serialize(cookie, {
+          secure: isProd,
+          httpOnly: true,
+          path: "/",
+          sameSite: isProd,
+        }),
+      },
     });
   } catch (error) {
     return redirect(
