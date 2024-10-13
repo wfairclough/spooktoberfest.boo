@@ -54,10 +54,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
       nominees,
     });
   }
+
+  const cookie = await voterCardCookie.parse(request.headers.get("Cookie"));
   return json(
     {
       nominations,
-      name: searchParams.get("name") as string,
+      name: cookie?.name ?? searchParams.get("name") as string,
     } satisfies { name: string; nominations: MovieNomination[] },
     200,
   );

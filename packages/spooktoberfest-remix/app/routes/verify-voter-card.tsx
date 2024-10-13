@@ -11,6 +11,9 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const cookie =
       (await voterCardCookie.parse(request.headers.get("Cookie"))) ?? {};
     cookie.voter_card = jwt;
+    cookie.name = voterCard.name;
+    cookie.email = voterCard.email;
+    cookie.voted = false;
     return redirect(`/vote?name=${voterCard.name}`, {
       headers: {
         "Set-Cookie": await voterCardCookie.serialize(cookie, {
