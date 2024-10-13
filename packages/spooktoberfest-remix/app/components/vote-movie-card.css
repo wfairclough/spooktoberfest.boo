@@ -2,7 +2,6 @@
   display: grid;
 }
 
-.poster.selected .overlay,
 .poster .overlay {
   display: none;
   grid-column: 1 / -1;

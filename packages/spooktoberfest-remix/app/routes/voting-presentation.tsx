@@ -20,6 +20,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { BeginVotingSlide } from "../components/slides/begin-voting-slide";
 import { VotingStartsShortlySlide } from "~/components/slides/voting-starts-shortly-slide";
 import { voterCardCookie } from "~/services/cookie.server";
+import { ThanksForVotingSlide } from "~/components/slides/thanks-for-voting-slide";
 
 
 const nodeTypes = {
@@ -28,7 +29,7 @@ const nodeTypes = {
   welcomeSlide: WelcomeSlide,
   beginVotingSlide: BeginVotingSlide,
   votingStartsShortly: VotingStartsShortlySlide,
-  thanksForVoting: VotingStartsShortlySlide,
+  thanksForVoting: ThanksForVotingSlide,
 };
 
 const mainStyle = {
