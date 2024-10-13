@@ -50,7 +50,7 @@ export function WelcomeSlide({ data: { onClick } }: NodeProps<SlideNode>) {
           <div className="flex items-center justify-center text-orange-600 font-semibold text-lg">
             <Calendar className="w-5 h-5 mr-2" />
             <span>
-              Voting begins <del>October 7th</del> when I say it does
+              Voting begins <strong>NOW!</strong>
             </span>
           </div>
         </CardContent>
