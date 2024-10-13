@@ -9,6 +9,7 @@ export const submitVotes = async (votes: Record<Position, MovieId>, seen: MovieI
     ...voterCard,
     votes,
     seen: seen ?? [],
+    votedAt: new Date().toISOString(),
   };
   await globalCacheService.set(`votes:${voterCard.key}`, JSON.stringify(voterData));
 };
