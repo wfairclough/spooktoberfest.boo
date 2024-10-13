@@ -25,6 +25,7 @@ import { Input } from "~/components/ui/input";
 import { voterCardCookie } from "~/services/cookie.server";
 import { verifyVoterCard, VoterCard } from "~/services/sign-voter-card.server";
 import { submitVotes } from "~/services/submit-votes.server";
+import { Resend } from "resend";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
@@ -59,7 +60,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return json(
     {
       nominations,
-      name: cookie?.name ?? searchParams.get("name") as string,
+      name: cookie?.name ?? (searchParams.get("name") as string),
     } satisfies { name: string; nominations: MovieNomination[] },
     200,
   );
@@ -128,7 +129,7 @@ export default function VotingRoute() {
           <li>Then choose your runner ups as #2 and #3</li>
           <li>Mark a movie as "seen", to help in tie-breaker scenarios</li>
         </ul>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {movies.map((movie) => (
             <VoteMovieCard
               key={movie.id}
@@ -178,7 +179,7 @@ export default function VotingRoute() {
                   Run Away
                 </AlertDialogCancel>
 
-                <Form action="/vote" method="post">
+                <Form action="/vote" method="post" className="grid">
                   <Input type="hidden" name="num1" value={num1Movie + ""} />
                   <Input type="hidden" name="num2" value={num2Movie + ""} />
                   <Input type="hidden" name="num3" value={num3Movie + ""} />
@@ -240,6 +241,48 @@ export async function action({ request }: ActionFunctionArgs) {
   );
 
   cookie.voted = "true";
+
+  try {
+    const movies = await Promise.all([
+      globalMoviesService.getMovieDetails(num1),
+      globalMoviesService.getMovieDetails(num2),
+      globalMoviesService.getMovieDetails(num3),
+    ]);
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    await resend.emails.send({
+      from: "SpookyBot <spooky_bot@vote.spooktoberfest.boo>",
+      to: [cookie.email],
+      subject: "Your Spooktoberfest Votes are submitted!",
+      html: `
+      <p>Hey there, ${cookie.name}! 👋</p>
+      <p>Thank you for submiting your votes for Spooktoberfest 2024.</p>
+      <p>
+        Your votes:
+        <ol>
+          <li>${movies[0].title}</li>
+          <li>${movies[1].title}</li>
+          <li>${movies[2].title}</li>
+        </ol>
+      </p>
+      <p>We are excited to see everyone on October 19th</p>
+      <br/>
+      <address>
+          <strong>Katrina and Will's Home</strong><br>
+          228 Latchford Road<br>
+          Ottawa, ON, K1Z 1B9<br>
+          Canada<br>
+      </address>
+      <br/>
+      <p>Thanks for participating in Spooktoberfest! 🎃👻</p>
+    `,
+    });
+  } catch (err) {
+    return redirect(
+      `/get-voter-card?error=${encodeURIComponent(
+        "Oh no! Something went wrong. Please try again later.",
+      )}`,
+    );
+  }
 
   return redirect("/see-you-soon", {
     headers: {

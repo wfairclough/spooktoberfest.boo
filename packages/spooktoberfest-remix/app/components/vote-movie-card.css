@@ -36,3 +36,10 @@
   grid-area: 1 / 1;
 }
 
+@media (max-width: 640px) {
+  .visible .poster .overlay {
+    display: grid;
+    place-items: center;
+  }
+}
+

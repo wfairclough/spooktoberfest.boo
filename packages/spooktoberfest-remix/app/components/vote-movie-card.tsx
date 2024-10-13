@@ -2,6 +2,7 @@ import { MovieNomination } from "~/models/movies";
 import { Card, CardContent } from "~/components/ui/card";
 import './vote-movie-card.css';
 import { Circle, Eye } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 export interface VoteMovieCard {
   movie: MovieNomination;
@@ -13,6 +14,34 @@ export interface VoteMovieCard {
 
 export function VoteMovieCard({ movie, seen, selected, onSelect, onSeenToggle }: VoteMovieCard) {
 
+  const [isVisible, setIsVisible] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+      },
+      {
+        root: null, // Use the document's viewport
+        rootMargin: '0px',
+        threshold: 0.8, // Trigger when at least 10% of the element is visible
+      }
+    );
+
+    const currentElement = ref.current;
+    
+    if (currentElement) {
+      observer.observe(currentElement);
+    }
+
+    return () => {
+      if (currentElement) {
+        observer.unobserve(currentElement);
+      }
+    };
+  }, [ref]);
+
   const getTitle = (movie: MovieNomination) => {
     return movie.release_date
       ? `${movie.title} (${movie.release_date.slice(0, 4)})`
@@ -22,7 +51,10 @@ export function VoteMovieCard({ movie, seen, selected, onSelect, onSeenToggle }:
   const hasSelection = selected !== null;
 
   return (
-    <Card className="bg-gray-700">
+    <Card 
+      ref={ref}
+      className={isVisible ? 'bg-gray-700 visible' : 'bg-gray-700'}
+    >
       <CardContent className="p-2">
         <div className={`poster ${hasSelection && 'selected'}`}>
           <img
