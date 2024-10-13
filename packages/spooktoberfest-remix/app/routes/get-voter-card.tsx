@@ -19,12 +19,8 @@ import { emailCookie } from "~/services/cookie.server";
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const search = new URL(request.url).searchParams;
   const error = search.get("error") as string | null;
-  const cookie = request.headers.get("Cookie");
-  const email =
-    cookie
-      ?.split(";")
-      .find((c) => c.trim().startsWith("email="))
-      ?.split("=")[1] ?? "";
+  const cookie = await emailCookie.parse(request.headers.get("Cookie"));
+  const email = cookie?.email ?? '';
   return json({
     error,
     email,

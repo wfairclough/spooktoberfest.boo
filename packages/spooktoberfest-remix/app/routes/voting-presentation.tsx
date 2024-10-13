@@ -19,6 +19,8 @@ import { WelcomeSlide } from "~/components/slides/welcome-slide";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { BeginVotingSlide } from "../components/slides/begin-voting-slide";
 import { VotingStartsShortlySlide } from "~/components/slides/voting-starts-shortly-slide";
+import { voterCardCookie } from "~/services/cookie.server";
+
 
 const nodeTypes = {
   slide: Slide,
@@ -26,6 +28,7 @@ const nodeTypes = {
   welcomeSlide: WelcomeSlide,
   beginVotingSlide: BeginVotingSlide,
   votingStartsShortly: VotingStartsShortlySlide,
+  thanksForVoting: VotingStartsShortlySlide,
 };
 
 const mainStyle = {
@@ -36,9 +39,10 @@ const mainStyle = {
 
 export interface VotingPresentationProps {
   nominations: MovieNomination[];
+  hasVoted: boolean;
 }
 
-const VotingPresentation = ({ nominations }: VotingPresentationProps) => {
+const VotingPresentation = ({ nominations, hasVoted }: VotingPresentationProps) => {
   const audRef = createRef<HTMLAudioElement>();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -75,7 +79,7 @@ const VotingPresentation = ({ nominations }: VotingPresentationProps) => {
       })),
       {
         id: nominations.length + 1 + "",
-        type: "beginVotingSlide",
+        type: hasVoted ? 'thanksForVoting' : 'beginVotingSlide',
         position: { x: -3000, y: 0 },
       },
     ],
@@ -184,6 +188,7 @@ const VotingPresentation = ({ nominations }: VotingPresentationProps) => {
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
+  const cookie = await voterCardCookie.parse(request.headers.get("Cookie"));
   const nomsKeys = await globalCacheService.keys("nominations:*");
   const jsonStrValues = await globalCacheService.mGet(nomsKeys);
   const values = jsonStrValues.map((v) => v && (JSON.parse(v) as unknown));
@@ -212,16 +217,17 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return json(
     {
       nominations,
-    } satisfies { nominations: MovieNomination[] },
+      hasVoted: cookie?.voted ?? false,
+    } satisfies { nominations: MovieNomination[], hasVoted: boolean },
     200,
   );
 }
 
 export default () => {
-  const { nominations } = useLoaderData<typeof loader>();
+  const { nominations, hasVoted } = useLoaderData<typeof loader>();
   return (
     <ReactFlowProvider>
-      <VotingPresentation nominations={nominations as any} />
+      <VotingPresentation nominations={nominations as any} hasVoted={hasVoted} />
     </ReactFlowProvider>
   );
 };

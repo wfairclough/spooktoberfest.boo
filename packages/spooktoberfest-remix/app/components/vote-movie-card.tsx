@@ -43,7 +43,7 @@ export function VoteMovieCard({ movie, seen, selected, onSelect, onSeenToggle }:
               { selected === 3 ? <></> : <Circle size={56} /> }
               <span>3</span>
             </button>
-            <button onClick={e => onSeenToggle(movie.id)} className={`whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 shadow text-white font-bold py-2 px-4 rounded-full grid row gap-1 text-neutral-300 hover:text-neutral-100 ${seen && 'bg-neutral-100 text-neutral-900 hover:text-neutral-600'}`}>
+            <button onClick={e => onSeenToggle(movie.id)} className={`whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 shadow text-white font-bold py-2 px-4 rounded-full grid row gap-1 text-neutral-300 hover:text-neutral-100 ${seen && 'bg-neutral-100 text-neutral-800 hover:text-neutral-600'}`}>
               <Eye size={24} />
               <span>Seen it</span>
             </button>

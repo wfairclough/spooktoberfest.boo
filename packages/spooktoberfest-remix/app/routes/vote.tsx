@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useToast } from "~/hooks/use-toast";
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 
+import { isProd } from "~/services/utils.server";
 import { globalCacheService } from "../services/cache.server";
 import { MovieNomination } from "../models/movies";
 import { globalMoviesService } from "../services/movies.server";
@@ -21,6 +22,9 @@ import {
   AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
 import { Input } from "~/components/ui/input";
+import { voterCardCookie } from "~/services/cookie.server";
+import { verifyVoterCard, VoterCard } from "~/services/sign-voter-card.server";
+import { submitVotes } from "~/services/submit-votes.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
@@ -159,6 +163,12 @@ export default function VotingRoute() {
                   escape!
                   <br />
                   <br />
+                  <ol className="list-decimal list-inside">
+                    <li>{movies.find((m) => m.id === num1Movie)?.title}</li>
+                    <li>{movies.find((m) => m.id === num2Movie)?.title}</li>
+                    <li>{movies.find((m) => m.id === num3Movie)?.title}</li>
+                  </ol>
+                  <br />
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -171,7 +181,12 @@ export default function VotingRoute() {
                   <Input type="hidden" name="num2" value={num2Movie + ""} />
                   <Input type="hidden" name="num3" value={num3Movie + ""} />
                   {Array.from(seenMovies).map((movieId) => (
-                    <input key={movieId} type="hidden" name="seen[]" value={movieId + ""} />
+                    <input
+                      key={movieId}
+                      type="hidden"
+                      name="seen[]"
+                      value={movieId + ""}
+                    />
                   ))}
                   <AlertDialogAction type="submit">
                     Seal My Fate!
@@ -190,11 +205,48 @@ export default function VotingRoute() {
 }
 
 export async function action({ request }: ActionFunctionArgs) {
+  const cookie = await voterCardCookie.parse(request.headers.get("Cookie"));
+  if (!cookie) {
+    return redirect(
+      `/get-voter-card?error=${encodeURIComponent("You must request a voter card before voting.")}`,
+    );
+  }
+  console.log({ cookie });
+  let voterCard!: VoterCard;
+  try {
+    voterCard = await verifyVoterCard(cookie.voter_card);
+  } catch (error) {
+    return redirect(
+      `/get-voter-card?error=${encodeURIComponent("It seems your voter card is invalid. Maybe it expired. Please try again.")}`,
+    );
+  }
   const formData = await request.formData();
   const num1 = formData.get("num1") as string;
   const num2 = formData.get("num2") as string;
   const num3 = formData.get("num3") as string;
   const seen = formData.getAll("seen[]");
   console.log({ num1, num2, num3, seen });
-  return redirect("/see-you-soon", {});
+
+  await submitVotes(
+    {
+      first: num1,
+      second: num2,
+      third: num3,
+    },
+    seen.map((id) => id.toString()),
+    voterCard,
+  );
+
+  cookie.voted = "true";
+
+  return redirect("/see-you-soon", {
+    headers: {
+      "Set-Cookie": await voterCardCookie.serialize(cookie, {
+        secure: isProd,
+        httpOnly: true,
+        path: "/",
+        sameSite: isProd,
+      }),
+    },
+  });
 }

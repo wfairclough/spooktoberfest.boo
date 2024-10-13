@@ -1,8 +1,7 @@
 import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { voterCardCookie } from "~/services/cookie.server";
 import { verifyVoterCard } from "~/services/sign-voter-card.server";
-
-const isProd = process.env.SPK_ENV === "prod";
+import { isProd } from "~/services/utils.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const search = new URL(request.url).searchParams;
