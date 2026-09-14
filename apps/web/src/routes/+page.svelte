@@ -14,11 +14,8 @@
 			<h1 id="festival-title">Spooktoberfest <em>2026</em></h1>
 		</div>
 		<div class="hero-copy">
-			<h2>Nominate two movies<br />for Spooktoberfest.</h2>
-			<p>
-				Come join us at the Mayfair Theatre for this year’s spooky cinema celebration. The marquee
-				is lit, the popcorn is hot, and the program is yours to haunt.
-			</p>
+			<h2>It’s nomination time!!</h2>
+			<p>Get your choices in by this Friday so we can start the voting process.</p>
 			<a class="ticket-button" href="#nominate">Nominate the lineup <span>↓</span></a>
 		</div>
 		<div class="horizon" aria-hidden="true">
@@ -29,7 +26,7 @@
 
 	<section class="details" aria-label="Event details">
 		<div>
-			<span>Where</span><strong>Mayfair Theatre</strong>
+			<span>Where</span><strong>Mayfair Theatre + Kat &amp; Will’s place</strong>
 		</div>
 		<div>
 			<span>When</span><strong>October 24th</strong>
@@ -105,7 +102,7 @@
 							{form.errors.movieTwo}
 						</p>{/if}
 				</div>
-				<button type="submit">Submit your 2 noms <span>→</span></button>
+				<button type="submit">Submit to the projectionist <span>→</span></button>
 			</form>
 		{/if}
 	</section>
