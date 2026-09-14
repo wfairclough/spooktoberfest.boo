@@ -50,4 +50,5 @@ Run these from the repository root:
 | `pnpm cf:d1:migrate:local`  | Applies migrations to Wrangler’s local D1 database.                            |
 | `pnpm cf:d1:migrate:remote` | Applies migrations to the remote D1 database.                                  |
 | `pnpm cf:dev`               | Builds the Pages Worker and starts the local Cloudflare Pages/D1 emulator.     |
-| `pnpm cf:deploy`            | Builds and deploys the current `main` output to Cloudflare Pages.              |
+| `pnpm cf:deploy`            | Builds and deploys production to `spooktoberfest-2026.pages.dev`.              |
+| `pnpm cf:deploy:preview`    | Builds and deploys a preview to `preview.spooktoberfest-2026.pages.dev`.       |
