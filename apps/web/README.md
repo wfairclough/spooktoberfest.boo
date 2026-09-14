@@ -1,42 +1,33 @@
-# sv
+# Spooktoberfest 2026 web app
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+The SvelteKit app is configured for Cloudflare Pages. Submitted nomination records are stored in a Cloudflare D1 (SQLite) database; the browser cookie only remembers that a guest has already nominated.
 
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
+## Local development
 
 ```sh
-# create a new project
-npx sv create my-app
+nvm use
+pnpm install
+pnpm dev
 ```
 
-To recreate this project with the same configuration:
+Without a D1 binding, local development still permits a nomination flow but does not persist the record. Use Wrangler after configuring D1 to test the full production path.
 
-```sh
-# recreate this project
-pnpm dlx sv@0.17.0 create --template minimal --types ts --add prettier eslint vitest="usages:unit" playwright --install pnpm apps/web
-```
+## One-time Cloudflare setup
 
-## Developing
+1. Copy `wrangler.example.jsonc` to `wrangler.jsonc` and replace `REPLACE_WITH_YOUR_D1_DATABASE_ID` with the ID returned by:
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+   ```sh
+   pnpm exec wrangler d1 create spooktoberfest-2026
+   ```
 
-```sh
-npm run dev
+2. Apply the checked-in schema migration:
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+   ```sh
+   pnpm exec wrangler d1 migrations apply spooktoberfest-2026 --remote
+   ```
 
-## Building
+3. Create a Cloudflare Pages project from this GitHub repository. Set its root directory to `apps/web`, production branch to `main`, and build command to `pnpm build`. The adapter produces `.svelte-kit/cloudflare` as the output directory.
 
-To create a production version of your app:
+4. In the Pages project’s **Settings → Bindings**, add the D1 database binding named `NOMINATIONS_DB` for both preview and production. Redeploy after adding the binding.
 
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+Cloudflare Pages will then build and deploy every push to `main`. The nominations table contains the visitor’s name, two movie choices, and submission timestamp.

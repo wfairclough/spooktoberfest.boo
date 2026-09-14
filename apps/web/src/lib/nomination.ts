@@ -1,4 +1,6 @@
 export type Nomination = {
+	id: string;
+	nominatorName: string;
 	movieOne: string;
 	movieTwo: string;
 	submittedAt: string;
@@ -10,6 +12,8 @@ export function readNomination(value: string | undefined): Nomination | null {
 	try {
 		const nomination = JSON.parse(decodeURIComponent(value)) as Nomination;
 		if (
+			typeof nomination.id === 'string' &&
+			typeof nomination.nominatorName === 'string' &&
 			typeof nomination.movieOne === 'string' &&
 			typeof nomination.movieTwo === 'string' &&
 			typeof nomination.submittedAt === 'string'
@@ -23,8 +27,9 @@ export function readNomination(value: string | undefined): Nomination | null {
 	return null;
 }
 
-export function validateNomination(movieOne: string, movieTwo: string) {
+export function validateNomination(nominatorName: string, movieOne: string, movieTwo: string) {
 	const errors: Record<string, string> = {};
+	if (!nominatorName) errors.nominatorName = 'Tell us who is sending this double feature.';
 	if (!movieOne) errors.movieOne = 'Choose your first feature.';
 	if (!movieTwo) errors.movieTwo = 'Choose your second feature.';
 	if (movieOne && movieTwo && movieOne.toLowerCase() === movieTwo.toLowerCase()) {

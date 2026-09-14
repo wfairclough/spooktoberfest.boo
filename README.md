@@ -14,3 +14,8 @@ nvm use
 pnpm install
 pnpm dev
 ```
+
+## Cloudflare deployment
+
+The app deploys to Cloudflare Pages and stores submitted nominations in Cloudflare D1.
+See [`apps/web/README.md`](apps/web/README.md) for the one-time D1 setup and deployment steps.

@@ -1,0 +1,14 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "spooktoberfest-2026",
+	"compatibility_date": "2026-09-14",
+	"pages_build_output_dir": ".svelte-kit/cloudflare",
+	"d1_databases": [
+		{
+			"binding": "NOMINATIONS_DB",
+			"database_name": "spooktoberfest-2026",
+			"database_id": "REPLACE_WITH_YOUR_D1_DATABASE_ID",
+			"migrations_dir": "migrations"
+		}
+	]
+}

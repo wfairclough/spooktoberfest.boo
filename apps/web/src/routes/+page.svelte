@@ -60,7 +60,7 @@
 				<div class="thanks-icon" aria-hidden="true">✦</div>
 				<p class="eyebrow">Transmission received</p>
 				<h3>Thanks for nominating!</h3>
-				<p>Your double feature is safely in the projection booth.</p>
+				<p>{nomination.nominatorName}, your double feature is safely in the projection booth.</p>
 				<dl>
 					<div>
 						<dt>Feature one</dt>
@@ -81,7 +81,20 @@
 					<p>Two titles. One glorious night.</p>
 				</div>
 				<div class="field">
-					<label for="movie-one"><span>01</span> First feature</label><input
+					<label for="nominator-name"><span>01</span> Your name</label><input
+						id="nominator-name"
+						name="nominatorName"
+						placeholder="e.g. Elvira"
+						maxlength="100"
+						value={form?.values?.nominatorName ?? ''}
+						aria-describedby={form?.errors?.nominatorName ? 'nominator-name-error' : undefined}
+						aria-invalid={form?.errors?.nominatorName ? 'true' : undefined}
+					/>{#if form?.errors?.nominatorName}<p class="error" id="nominator-name-error">
+							{form.errors.nominatorName}
+						</p>{/if}
+				</div>
+				<div class="field">
+					<label for="movie-one"><span>02</span> First feature</label><input
 						id="movie-one"
 						name="movieOne"
 						placeholder="e.g. The Thing"
@@ -93,7 +106,7 @@
 						</p>{/if}
 				</div>
 				<div class="field">
-					<label for="movie-two"><span>02</span> Second feature</label><input
+					<label for="movie-two"><span>03</span> Second feature</label><input
 						id="movie-two"
 						name="movieTwo"
 						placeholder="e.g. The Lost Boys"
