@@ -20,7 +20,11 @@ Without a D1 binding, local development still permits a nomination flow but does
    pnpm cf:d1:create
    ```
 
-   Copy `apps/web/wrangler.example.jsonc` to `apps/web/wrangler.jsonc` and replace `REPLACE_WITH_YOUR_D1_DATABASE_ID` with the returned ID.
+   Initialize the local configuration, then replace `REPLACE_WITH_YOUR_D1_DATABASE_ID` with the returned ID:
+
+   ```sh
+   pnpm cf:config:init
+   ```
 
 2. Apply the checked-in schema migration:
 
@@ -38,10 +42,12 @@ Cloudflare Pages will then build and deploy every push to `main`. The nomination
 
 Run these from the repository root:
 
-| Script                      | Purpose                                                                    |
-| --------------------------- | -------------------------------------------------------------------------- |
-| `pnpm cf:d1:create`         | Creates the remote `spooktoberfest-2026` D1 database.                      |
-| `pnpm cf:d1:migrate:local`  | Applies migrations to Wrangler’s local D1 database.                        |
-| `pnpm cf:d1:migrate:remote` | Applies migrations to the remote D1 database.                              |
-| `pnpm cf:dev`               | Builds the Pages Worker and starts the local Cloudflare Pages/D1 emulator. |
-| `pnpm cf:deploy`            | Builds and deploys the current `main` output to Cloudflare Pages.          |
+| Script                      | Purpose                                                                        |
+| --------------------------- | ------------------------------------------------------------------------------ |
+| `pnpm cf:d1:create`         | Creates the remote `spooktoberfest-2026` D1 database.                          |
+| `pnpm cf:config:init`       | Creates the ignored local Wrangler config without overwriting an existing one. |
+| `pnpm cf:config:check`      | Verifies that the local Wrangler config has a real D1 ID.                      |
+| `pnpm cf:d1:migrate:local`  | Applies migrations to Wrangler’s local D1 database.                            |
+| `pnpm cf:d1:migrate:remote` | Applies migrations to the remote D1 database.                                  |
+| `pnpm cf:dev`               | Builds the Pages Worker and starts the local Cloudflare Pages/D1 emulator.     |
+| `pnpm cf:deploy`            | Builds and deploys the current `main` output to Cloudflare Pages.              |
