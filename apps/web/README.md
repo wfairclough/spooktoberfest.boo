@@ -14,16 +14,18 @@ Without a D1 binding, local development still permits a nomination flow but does
 
 ## One-time Cloudflare setup
 
-1. Copy `wrangler.example.jsonc` to `wrangler.jsonc` and replace `REPLACE_WITH_YOUR_D1_DATABASE_ID` with the ID returned by:
+1. From the repository root, create the D1 database:
 
    ```sh
-   pnpm exec wrangler d1 create spooktoberfest-2026
+   pnpm cf:d1:create
    ```
+
+   Copy `apps/web/wrangler.example.jsonc` to `apps/web/wrangler.jsonc` and replace `REPLACE_WITH_YOUR_D1_DATABASE_ID` with the returned ID.
 
 2. Apply the checked-in schema migration:
 
    ```sh
-   pnpm exec wrangler d1 migrations apply spooktoberfest-2026 --remote
+   pnpm cf:d1:migrate:remote
    ```
 
 3. Create a Cloudflare Pages project from this GitHub repository. Set its root directory to `apps/web`, production branch to `main`, and build command to `pnpm build`. The adapter produces `.svelte-kit/cloudflare` as the output directory.
@@ -31,3 +33,15 @@ Without a D1 binding, local development still permits a nomination flow but does
 4. In the Pages project’s **Settings → Bindings**, add the D1 database binding named `NOMINATIONS_DB` for both preview and production. Redeploy after adding the binding.
 
 Cloudflare Pages will then build and deploy every push to `main`. The nominations table contains the visitor’s name, two movie choices, and submission timestamp.
+
+## Workspace scripts
+
+Run these from the repository root:
+
+| Script                      | Purpose                                                                    |
+| --------------------------- | -------------------------------------------------------------------------- |
+| `pnpm cf:d1:create`         | Creates the remote `spooktoberfest-2026` D1 database.                      |
+| `pnpm cf:d1:migrate:local`  | Applies migrations to Wrangler’s local D1 database.                        |
+| `pnpm cf:d1:migrate:remote` | Applies migrations to the remote D1 database.                              |
+| `pnpm cf:dev`               | Builds the Pages Worker and starts the local Cloudflare Pages/D1 emulator. |
+| `pnpm cf:deploy`            | Builds and deploys the current `main` output to Cloudflare Pages.          |

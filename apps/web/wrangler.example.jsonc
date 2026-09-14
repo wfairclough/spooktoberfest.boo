@@ -8,6 +8,7 @@
 			"binding": "NOMINATIONS_DB",
 			"database_name": "spooktoberfest-2026",
 			"database_id": "REPLACE_WITH_YOUR_D1_DATABASE_ID",
+			"preview_database_id": "NOMINATIONS_DB",
 			"migrations_dir": "migrations"
 		}
 	]
