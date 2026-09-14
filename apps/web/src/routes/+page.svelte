@@ -11,14 +11,10 @@
 		<div class="moon" aria-hidden="true"></div>
 		<div class="marquee" aria-label="Spooktoberfest 2026">
 			<span class="bulbs" aria-hidden="true"></span>
-			<p>Mayfair Theatre presents</p>
 			<h1 id="festival-title">Spooktoberfest <em>2026</em></h1>
-			<div class="marquee-rule"></div>
-			<span class="tagline">A frightfully good double feature</span>
 		</div>
 		<div class="hero-copy">
-			<p class="eyebrow">One night only · October 2026</p>
-			<h2>Park your broom.<br />Stay for the screams.</h2>
+			<h2>Nominate two movies<br />for Spooktoberfest.</h2>
 			<p>
 				Come join us at the Mayfair Theatre for this year’s spooky cinema celebration. The marquee
 				is lit, the popcorn is hot, and the program is yours to haunt.
@@ -34,26 +30,18 @@
 	<section class="details" aria-label="Event details">
 		<div>
 			<span>Where</span><strong>Mayfair Theatre</strong>
-			<p>Ottawa’s favourite movie palace</p>
 		</div>
 		<div>
-			<span>When</span><strong>October 2026</strong>
-			<p>Exact date coming soon</p>
+			<span>When</span><strong>October 24th</strong>
 		</div>
 		<div>
-			<span>What</span><strong>Your dream double feature</strong>
-			<p>Horror, chills, and candy</p>
+			<span>What</span><strong>A day of spooks</strong>
 		</div>
 	</section>
 
 	<section class="nomination-section" id="nominate" aria-labelledby="nominate-title">
 		<div class="section-intro">
-			<p class="eyebrow">The audience chooses</p>
 			<h2 id="nominate-title">Name your nightmares.</h2>
-			<p>
-				Every great drive-in needs a double feature. Nominate the two horror movies you’d most like
-				to see under the marquee.
-			</p>
 		</div>
 		{#if nomination}
 			<div class="thanks" role="status">
@@ -78,7 +66,7 @@
 				<div class="form-header">
 					<span class="reel" aria-hidden="true">◉</span>
 					<h3>Now accepting nominations</h3>
-					<p>Two titles. One glorious night.</p>
+					<p>Choose wisely</p>
 				</div>
 				<div class="field">
 					<label for="nominator-name"><span>01</span> Your name</label><input
@@ -117,8 +105,7 @@
 							{form.errors.movieTwo}
 						</p>{/if}
 				</div>
-				<button type="submit">Send to the projectionist <span>→</span></button>
-				<p class="fine-print">One double-feature nomination per guest, saved to this browser.</p>
+				<button type="submit">Submit your 2 noms <span>→</span></button>
 			</form>
 		{/if}
 	</section>
@@ -222,12 +209,6 @@
 			0 16px 0 #31152f;
 		transform: rotate(-1deg);
 	}
-	.marquee > p {
-		margin: 0;
-		font-size: 0.68rem;
-		letter-spacing: 0.25em;
-		text-transform: uppercase;
-	}
 	.marquee h1 {
 		margin: 2px 0 -2px;
 		color: #4b1c4c;
@@ -242,17 +223,6 @@
 	.marquee h1 em {
 		color: #d5495f;
 		font-style: normal;
-	}
-	.marquee-rule {
-		height: 3px;
-		width: 80%;
-		margin: 10px auto 7px;
-		background: #e85562;
-	}
-	.tagline {
-		font-size: 0.68rem;
-		letter-spacing: 0.15em;
-		text-transform: uppercase;
 	}
 	.bulbs {
 		position: absolute;
@@ -420,12 +390,6 @@
 		font-size: 1.25rem;
 		font-weight: 400;
 	}
-	.details p {
-		margin: 0;
-		color: #a998ad;
-		font-size: 0.7rem;
-		line-height: 1.5;
-	}
 	.nomination-section {
 		display: grid;
 		grid-template-columns: minmax(250px, 0.85fr) minmax(380px, 1fr);
@@ -442,11 +406,6 @@
 		color: #f8e9bd;
 		font-size: clamp(2.8rem, 5vw, 4.3rem);
 		line-height: 0.94;
-	}
-	.section-intro > p:last-child {
-		color: #b8a6b8;
-		font-size: 0.82rem;
-		line-height: 1.85;
 	}
 	.nomination-form,
 	.thanks {
