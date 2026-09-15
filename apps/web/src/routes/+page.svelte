@@ -94,7 +94,7 @@
 					<label for="movie-two"><span>03</span> Second feature</label><input
 						id="movie-two"
 						name="movieTwo"
-						placeholder="e.g. The Lost Boys"
+						placeholder="e.g. A Nightmare on Elm Street"
 						value={form?.values?.movieTwo ?? ''}
 						aria-describedby={form?.errors?.movieTwo ? 'movie-two-error' : undefined}
 						aria-invalid={form?.errors?.movieTwo ? 'true' : undefined}
