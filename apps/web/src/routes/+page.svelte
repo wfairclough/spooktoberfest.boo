@@ -44,7 +44,12 @@
 			</a>
 			<div class="pixel-drive-in" aria-hidden="true">
 				<span class="pixel-moon"></span>
-				<div class="pixel-pines"><i></i><i></i><i></i><i></i></div>
+				<div class="pixel-pines">
+					<div class="pine-track">
+						<div class="pine-set"><i></i><i></i><i></i><i></i></div>
+						<div class="pine-set"><i></i><i></i><i></i><i></i></div>
+					</div>
+				</div>
 				<div class="pixel-road"></div>
 				<div class="pixel-car"><span></span><b></b><b></b></div>
 			</div>
@@ -444,8 +449,20 @@
 	.pixel-pines {
 		position: absolute;
 		inset: 46px 0 38px;
+		overflow: hidden;
 	}
-	.pixel-pines i {
+	.pine-track {
+		display: flex;
+		width: 200%;
+		height: 100%;
+		animation: pines-drift 12s linear infinite;
+	}
+	.pine-set {
+		position: relative;
+		flex: 0 0 50%;
+		height: 100%;
+	}
+	.pine-set i {
 		position: absolute;
 		bottom: 0;
 		width: 74px;
@@ -475,19 +492,19 @@
 			38% 14%
 		);
 	}
-	.pixel-pines i:nth-child(1) {
+	.pine-set i:nth-child(1) {
 		left: -17px;
 		height: 128px;
 	}
-	.pixel-pines i:nth-child(2) {
+	.pine-set i:nth-child(2) {
 		left: 82px;
 		height: 175px;
 	}
-	.pixel-pines i:nth-child(3) {
+	.pine-set i:nth-child(3) {
 		right: 76px;
 		height: 119px;
 	}
-	.pixel-pines i:nth-child(4) {
+	.pine-set i:nth-child(4) {
 		right: -23px;
 		height: 161px;
 	}
@@ -503,7 +520,7 @@
 	.pixel-car {
 		position: absolute;
 		bottom: 18px;
-		left: 20%;
+		left: 50%;
 		width: 174px;
 		height: 49px;
 		border: 5px solid #080914;
@@ -512,6 +529,7 @@
 		box-shadow:
 			inset 0 -9px #3c203b,
 			0 9px 0 -2px #080914;
+		animation: car-idle 1.6s steps(2, end) infinite;
 	}
 	.pixel-car::before {
 		content: '';
@@ -554,6 +572,29 @@
 		border-radius: 50%;
 		background: #9b7773;
 		box-shadow: -94px 0 #9b7773;
+	}
+	@keyframes pines-drift {
+		to {
+			transform: translateX(-50%);
+		}
+	}
+	@keyframes car-idle {
+		0%,
+		100% {
+			transform: translate(-50%, 0);
+		}
+		50% {
+			transform: translate(-50%, -4px);
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.pine-track,
+		.pixel-car {
+			animation: none;
+		}
+		.pixel-car {
+			transform: translateX(-50%);
+		}
 	}
 	.nomination-form,
 	.thanks {
