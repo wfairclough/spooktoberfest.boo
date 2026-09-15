@@ -64,6 +64,14 @@
 					<span class="reel" aria-hidden="true">◉</span>
 					<h3>Now accepting nominations</h3>
 					<p>Choose wisely</p>
+					<a
+						class="scary-meter-link"
+						href="https://scarymeter.com/"
+						target="_blank"
+						rel="noreferrer"
+					>
+						Check scary, creepy, gory &amp; jumpy ratings on Scary Meter ↗
+					</a>
 				</div>
 				<div class="field">
 					<label for="nominator-name"><span>01</span> Your name</label><input
@@ -446,6 +454,17 @@
 		margin: 10px 0 0;
 		color: #725069;
 		font-size: 0.7rem;
+	}
+	.scary-meter-link {
+		display: inline-block;
+		margin-top: 14px;
+		color: #8d3158;
+		font-size: 0.62rem;
+		line-height: 1.45;
+		text-underline-offset: 3px;
+	}
+	.scary-meter-link:hover {
+		color: #4b1c4c;
 	}
 	.field {
 		position: relative;
