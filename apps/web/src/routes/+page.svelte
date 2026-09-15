@@ -42,6 +42,12 @@
 			<a class="scary-meter-link" href="https://scarymeter.com/" target="_blank" rel="noreferrer">
 				Check ratings on Scary Meter <span>↗</span>
 			</a>
+			<div class="pixel-drive-in" aria-hidden="true">
+				<span class="pixel-moon"></span>
+				<div class="pixel-pines"><i></i><i></i><i></i><i></i></div>
+				<div class="pixel-road"></div>
+				<div class="pixel-car"><span></span><b></b><b></b></div>
+			</div>
 		</div>
 		{#if nomination}
 			<div class="thanks" role="status">
@@ -65,7 +71,7 @@
 			<form method="POST" class="nomination-form">
 				<div class="form-header">
 					<span class="reel" aria-hidden="true">◉</span>
-					<h3>Now accepting nominations</h3>
+					<h3>Noms are OPEN</h3>
 					<p>Choose wisely</p>
 				</div>
 				<div class="field">
@@ -406,6 +412,155 @@
 		color: #f8e9bd;
 		font-size: clamp(2.8rem, 5vw, 4.3rem);
 		line-height: 0.94;
+	}
+	.pixel-drive-in {
+		position: relative;
+		height: 238px;
+		margin-top: 29px;
+		overflow: hidden;
+		border-bottom: 4px solid #e35a63;
+		background: linear-gradient(#24143c 0 60%, #151126 60% 75%, #0b0b19 75%);
+		box-shadow: 7px 7px 0 #4c1c48;
+		image-rendering: pixelated;
+	}
+	.pixel-drive-in::before {
+		content: '';
+		position: absolute;
+		inset: 0 0 40%;
+		opacity: 0.7;
+		background-image: radial-gradient(#f7d98d 1px, transparent 1.5px);
+		background-size: 25px 25px;
+		background-position: 8px 6px;
+	}
+	.pixel-moon {
+		position: absolute;
+		top: 26px;
+		right: 34px;
+		width: 52px;
+		height: 52px;
+		background: #f8cf72;
+		box-shadow:
+			9px 8px 0 #c98262,
+			0 0 26px #e66768;
+	}
+	.pixel-pines {
+		position: absolute;
+		inset: 46px 0 38px;
+	}
+	.pixel-pines i {
+		position: absolute;
+		bottom: 0;
+		width: 74px;
+		height: 142px;
+		background: #171b31;
+		clip-path: polygon(
+			50% 0,
+			62% 14%,
+			62% 21%,
+			76% 21%,
+			76% 30%,
+			66% 30%,
+			86% 52%,
+			86% 61%,
+			69% 61%,
+			98% 88%,
+			98% 100%,
+			2% 100%,
+			2% 88%,
+			31% 61%,
+			14% 61%,
+			14% 52%,
+			34% 30%,
+			24% 30%,
+			24% 21%,
+			38% 21%,
+			38% 14%
+		);
+	}
+	.pixel-pines i:nth-child(1) {
+		left: -17px;
+		height: 128px;
+	}
+	.pixel-pines i:nth-child(2) {
+		left: 82px;
+		height: 175px;
+	}
+	.pixel-pines i:nth-child(3) {
+		right: 76px;
+		height: 119px;
+	}
+	.pixel-pines i:nth-child(4) {
+		right: -23px;
+		height: 161px;
+	}
+	.pixel-road {
+		position: absolute;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		height: 40px;
+		background: repeating-linear-gradient(
+			90deg,
+			transparent 0 25px,
+			#ab745b 25px 41px,
+			transparent 41px 72px
+		);
+		opacity: 0.65;
+	}
+	.pixel-car {
+		position: absolute;
+		bottom: 31px;
+		left: 20%;
+		width: 174px;
+		height: 49px;
+		border: 5px solid #080914;
+		border-radius: 12px 12px 3px 3px;
+		background: #74334f;
+		box-shadow:
+			inset 0 -9px #3c203b,
+			0 9px 0 -2px #080914;
+	}
+	.pixel-car::before {
+		content: '';
+		position: absolute;
+		bottom: 42px;
+		left: 31px;
+		width: 94px;
+		height: 34px;
+		border: 5px solid #080914;
+		border-bottom: 0;
+		background: #312340;
+		box-shadow: inset 12px 0 #c77067;
+	}
+	.pixel-car span {
+		position: absolute;
+		top: 12px;
+		left: 18px;
+		width: 9px;
+		height: 9px;
+		background: #d45e61;
+	}
+	.pixel-car b {
+		position: absolute;
+		top: 13px;
+		right: -15px;
+		width: 15px;
+		height: 12px;
+		background: #fff0a1;
+		box-shadow:
+			29px 0 0 -4px #f5d171,
+			45px 0 0 -8px #f5d171;
+	}
+	.pixel-car b:last-child {
+		top: auto;
+		right: 23px;
+		bottom: -14px;
+		width: 24px;
+		height: 24px;
+		border: 5px solid #080914;
+		border-radius: 50%;
+		background: #9b7773;
+		box-shadow: -94px 0 #9b7773;
 	}
 	.nomination-form,
 	.thanks {
