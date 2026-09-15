@@ -418,9 +418,7 @@
 		height: 238px;
 		margin-top: 29px;
 		overflow: hidden;
-		border-bottom: 4px solid #e35a63;
-		background: linear-gradient(#24143c 0 60%, #151126 60% 75%, #0b0b19 75%);
-		box-shadow: 7px 7px 0 #4c1c48;
+		background: transparent;
 		image-rendering: pixelated;
 	}
 	.pixel-drive-in::before {
@@ -498,18 +496,13 @@
 		right: 0;
 		bottom: 0;
 		left: 0;
-		height: 40px;
-		background: repeating-linear-gradient(
-			90deg,
-			transparent 0 25px,
-			#ab745b 25px 41px,
-			transparent 41px 72px
-		);
-		opacity: 0.65;
+		height: 4px;
+		background: #e35a63;
+		opacity: 0.75;
 	}
 	.pixel-car {
 		position: absolute;
-		bottom: 31px;
+		bottom: 18px;
 		left: 20%;
 		width: 174px;
 		height: 49px;
