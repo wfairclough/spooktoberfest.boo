@@ -3,7 +3,7 @@
 	const nomination = $derived(form?.nomination ?? data.nomination);
 </script>
 
-<svelte:head><title>Spooktoberfest 2026 | Mayfair Theatre</title></svelte:head>
+<svelte:head><title>Spooktoberfest 2026</title></svelte:head>
 
 <main>
 	<section class="hero" aria-labelledby="festival-title">
@@ -790,6 +790,11 @@
 		}
 		.marquee {
 			margin-bottom: 52px;
+			padding: 20px 18px 18px;
+		}
+		.marquee h1 {
+			font-size: clamp(2.55rem, 11vw, 3.5rem);
+			letter-spacing: 0;
 		}
 		.hero-copy {
 			margin: 0;
