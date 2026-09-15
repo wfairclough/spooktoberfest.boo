@@ -39,6 +39,9 @@
 	<section class="nomination-section" id="nominate" aria-labelledby="nominate-title">
 		<div class="section-intro">
 			<h2 id="nominate-title">Name your nightmares.</h2>
+			<a class="scary-meter-link" href="https://scarymeter.com/" target="_blank" rel="noreferrer">
+				Check ratings on Scary Meter <span>↗</span>
+			</a>
 		</div>
 		{#if nomination}
 			<div class="thanks" role="status">
@@ -64,14 +67,6 @@
 					<span class="reel" aria-hidden="true">◉</span>
 					<h3>Now accepting nominations</h3>
 					<p>Choose wisely</p>
-					<a
-						class="scary-meter-link"
-						href="https://scarymeter.com/"
-						target="_blank"
-						rel="noreferrer"
-					>
-						Check scary, creepy, gory &amp; jumpy ratings on Scary Meter ↗
-					</a>
 				</div>
 				<div class="field">
 					<label for="nominator-name"><span>01</span> Your name</label><input
@@ -456,15 +451,28 @@
 		font-size: 0.7rem;
 	}
 	.scary-meter-link {
-		display: inline-block;
-		margin-top: 14px;
-		color: #8d3158;
-		font-size: 0.62rem;
-		line-height: 1.45;
-		text-underline-offset: 3px;
+		display: inline-flex;
+		align-items: center;
+		gap: 12px;
+		margin-top: 9px;
+		padding: 12px 14px;
+		color: #f9e8b6;
+		border: 1px solid #e15b67;
+		background: #3b1945;
+		font-size: 0.68rem;
+		letter-spacing: 0.04em;
+		text-decoration: none;
+		transition:
+			background 0.15s,
+			transform 0.15s;
 	}
 	.scary-meter-link:hover {
-		color: #4b1c4c;
+		background: #572051;
+		transform: translateY(-2px);
+	}
+	.scary-meter-link span {
+		color: #f6c767;
+		font-size: 1rem;
 	}
 	.field {
 		position: relative;
