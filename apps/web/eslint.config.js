@@ -34,8 +34,9 @@ export default defineConfig(
 		}
 	},
 	{
-		// Override or add rule settings here, such as:
-		// 'svelte/button-has-type': 'error'
-		rules: {}
+		rules: {
+			// Trailer and Scary Meter destinations are external, runtime-generated URLs.
+			'svelte/no-navigation-without-resolve': 'off'
+		}
 	}
 );

@@ -1,122 +1,174 @@
 <script lang="ts">
+	import { candidates, posterUrl, youtubeSearchUrl, type Candidate } from '$lib/candidates';
+
 	let { data, form } = $props();
-	const nomination = $derived(form?.nomination ?? data.nomination);
+	let selections = $state<string[]>([]);
+	const vote = $derived(form?.vote ?? data.vote);
+
+	function choose(candidate: Candidate) {
+		const existingIndex = selections.indexOf(candidate.id);
+		if (existingIndex >= 0) {
+			selections = selections.filter((id) => id !== candidate.id);
+			return;
+		}
+		if (selections.length < 3) selections = [...selections, candidate.id];
+	}
+
+	function rankFor(candidateId: string) {
+		return selections.indexOf(candidateId) + 1;
+	}
+
+	function candidateFor(id: string) {
+		return candidates.find((candidate) => candidate.id === id);
+	}
 </script>
 
 <svelte:head><title>Spooktoberfest 2026</title></svelte:head>
 
 <main>
 	<section class="hero" aria-labelledby="festival-title">
-		<div class="stars" aria-hidden="true"></div>
-		<div class="moon" aria-hidden="true"></div>
-		<div class="marquee" aria-label="Spooktoberfest 2026">
+		<div class="marquee">
 			<span class="bulbs" aria-hidden="true"></span>
 			<h1 id="festival-title">Spooktoberfest <em>2026</em></h1>
 		</div>
 		<div class="hero-copy">
-			<h2>It’s nomination time!!</h2>
-			<p>Get your choices in by this Friday so we can start the voting process.</p>
-			<a class="ticket-button" href="#nominate">Nominate the lineup <span>↓</span></a>
-		</div>
-		<div class="horizon" aria-hidden="true">
-			<div class="city"></div>
-			<div class="cars"><i></i><i></i><i></i><i></i></div>
+			<p class="eyebrow">The nomination booth is closed</p>
+			<h2>The lineup is in.<br />Now choose the winners.</h2>
+			<p>
+				Cast your three votes for the movies you want to see at the Mayfair. First pick gets 3
+				points, second gets 2, and third gets 1.
+			</p>
+			<a class="ticket-button" href="#ballot">Cast your ballot <span>↓</span></a>
 		</div>
 	</section>
 
 	<section class="details" aria-label="Event details">
-		<div>
-			<span>Where</span><strong>Mayfair Theatre + Kat &amp; Will’s place</strong>
-		</div>
-		<div>
-			<span>When</span><strong>October 24th</strong>
-		</div>
-		<div>
-			<span>What</span><strong>A day of spooks</strong>
-		</div>
+		<div><span>Where</span><strong>Mayfair Theatre + Kat &amp; Will’s place</strong></div>
+		<div><span>When</span><strong>October 24th</strong></div>
+		<div><span>What</span><strong>A day of spooks</strong></div>
 	</section>
 
-	<section class="nomination-section" id="nominate" aria-labelledby="nominate-title">
-		<div class="section-intro">
-			<h2 id="nominate-title">Name your nightmares.</h2>
-			<a class="scary-meter-link" href="https://scarymeter.com/" target="_blank" rel="noreferrer">
-				Check ratings on Scary Meter <span>↗</span>
-			</a>
-			<div class="pixel-drive-in" aria-hidden="true">
-				<span class="pixel-moon"></span>
-				<div class="pixel-pines">
-					<div class="pine-track">
-						<div class="pine-set"><i></i><i></i><i></i><i></i></div>
-						<div class="pine-set"><i></i><i></i><i></i><i></i></div>
-					</div>
-				</div>
-				<div class="pixel-road"></div>
-				<div class="pixel-car"><span></span><b></b><b></b></div>
+	<section class="voting" id="ballot" aria-labelledby="ballot-title">
+		<div class="voting-heading">
+			<div>
+				<p class="eyebrow">The voting booth</p>
+				<h2 id="ballot-title">Pick the double-feature contenders.</h2>
 			</div>
+			<p class="rules">
+				Choose exactly three. Your ballot locks when submitted, and each name can submit once.
+			</p>
 		</div>
-		{#if nomination}
-			<div class="thanks" role="status">
-				<div class="thanks-icon" aria-hidden="true">✦</div>
-				<p class="eyebrow">Transmission received</p>
-				<h3>Thanks for nominating!</h3>
-				<p>{nomination.nominatorName}, your double feature is safely in the projection booth.</p>
-				<dl>
-					<div>
-						<dt>Feature one</dt>
-						<dd>{nomination.movieOne}</dd>
-					</div>
-					<div>
-						<dt>Feature two</dt>
-						<dd>{nomination.movieTwo}</dd>
-					</div>
-				</dl>
-				<p class="fine-print">Your picks are saved on this device. See you at the Mayfair.</p>
-			</div>
+
+		{#if vote}
+			<section class="locked-ballot" aria-labelledby="locked-title">
+				<p class="eyebrow">Ballot locked</p>
+				<h3 id="locked-title">Thanks, {vote.voterName}.</h3>
+				<p>Your votes are in the projection booth.</p>
+				<ol>
+					{#each vote.choices as choice, index (choice)}
+						{@const candidate = candidateFor(choice)}
+						<li><span>{index + 1}</span>{candidate?.title} <small>{3 - index} points</small></li>
+					{/each}
+				</ol>
+			</section>
 		{:else}
-			<form method="POST" class="nomination-form">
-				<div class="form-header">
-					<span class="reel" aria-hidden="true">◉</span>
-					<h3>Noms are OPEN</h3>
-					<p>Choose wisely</p>
+			<form method="POST" action="?/vote" class="ballot">
+				<div class="ballot-controls">
+					<div class="field">
+						<label for="voter-name">Your name</label>
+						<input
+							id="voter-name"
+							name="voterName"
+							maxlength="100"
+							placeholder="e.g. Elvira"
+							value={form?.values?.voterName ?? ''}
+							aria-invalid={form?.errors?.voterName ? 'true' : undefined}
+						/>
+					</div>
+					<div class="your-picks" aria-live="polite">
+						<span>Your ballot · {selections.length}/3</span>
+						<ol>
+							{#each [0, 1, 2] as index (index)}
+								{@const candidate = selections[index] ? candidateFor(selections[index]) : undefined}
+								<li class:empty={!candidate}>
+									<b>{index + 1}</b>{candidate?.title ?? 'Choose a film'}
+								</li>
+							{/each}
+						</ol>
+					</div>
+					<input type="hidden" name="choiceOne" value={selections[0] ?? ''} />
+					<input type="hidden" name="choiceTwo" value={selections[1] ?? ''} />
+					<input type="hidden" name="choiceThree" value={selections[2] ?? ''} />
+					{#if form?.errors?.choices}<p class="error">{form.errors.choices}</p>{/if}
+					{#if form?.message}<p class="error">{form.message}</p>{/if}
+					<button type="submit" disabled={selections.length !== 3}
+						>Lock in my votes <span>→</span></button
+					>
+					<p class="fine-print">One locked ballot per name and browser.</p>
 				</div>
-				<div class="field">
-					<label for="nominator-name"><span>01</span> Your name</label><input
-						id="nominator-name"
-						name="nominatorName"
-						placeholder="e.g. Elvira"
-						maxlength="100"
-						value={form?.values?.nominatorName ?? ''}
-						aria-describedby={form?.errors?.nominatorName ? 'nominator-name-error' : undefined}
-						aria-invalid={form?.errors?.nominatorName ? 'true' : undefined}
-					/>{#if form?.errors?.nominatorName}<p class="error" id="nominator-name-error">
-							{form.errors.nominatorName}
-						</p>{/if}
+
+				<div class="film-grid">
+					{#each candidates as candidate (candidate.id)}
+						{@const rank = rankFor(candidate.id)}
+						<article class:chosen={rank > 0} class="film-card">
+							<div class="film-art">
+								<img src={posterUrl(candidate.posterPath)} alt={'Poster for ' + candidate.title} />
+							</div>
+							<div class="film-copy">
+								<div class="film-title-row">
+									<h3>{candidate.title}</h3>
+									{#if rank}<span class="rank-badge">#{rank} · {4 - rank} pts</span>{/if}
+								</div>
+								<p class="nominators"><b>Nominated by</b> {candidate.nominators.join(', ')}</p>
+								<div class="meter" aria-label={'Scary Meter ratings for ' + candidate.title}>
+									<p>Scary Meter</p>
+									{#if candidate.ratings}
+										<dl>
+											<div>
+												<dt>Scary</dt>
+												<dd>{candidate.ratings.scary.toFixed(1)}</dd>
+											</div>
+											<div>
+												<dt>Creepy</dt>
+												<dd>{candidate.ratings.creepy.toFixed(1)}</dd>
+											</div>
+											<div>
+												<dt>Gory</dt>
+												<dd>{candidate.ratings.gory.toFixed(1)}</dd>
+											</div>
+											<div>
+												<dt>Jumpy</dt>
+												<dd>{candidate.ratings.jumpy.toFixed(1)}</dd>
+											</div>
+										</dl>
+									{:else}
+										<span class="unrated">Not rated yet</span>
+									{/if}
+								</div>
+								<div class="film-links">
+									<a
+										href={youtubeSearchUrl(candidate.trailerQuery)}
+										target="_blank"
+										rel="noreferrer">Trailer ↗</a
+									>
+								</div>
+								<button
+									type="button"
+									class="pick-button"
+									class:selected={rank > 0}
+									onclick={() => choose(candidate)}
+									disabled={selections.length === 3 && !rank}
+								>
+									{rank
+										? 'Remove pick #' + rank
+										: selections.length === 3
+											? 'Ballot is full'
+											: 'Add to ballot'}
+								</button>
+							</div>
+						</article>
+					{/each}
 				</div>
-				<div class="field">
-					<label for="movie-one"><span>02</span> First feature</label><input
-						id="movie-one"
-						name="movieOne"
-						placeholder="e.g. The Thing"
-						value={form?.values?.movieOne ?? ''}
-						aria-describedby={form?.errors?.movieOne ? 'movie-one-error' : undefined}
-						aria-invalid={form?.errors?.movieOne ? 'true' : undefined}
-					/>{#if form?.errors?.movieOne}<p class="error" id="movie-one-error">
-							{form.errors.movieOne}
-						</p>{/if}
-				</div>
-				<div class="field">
-					<label for="movie-two"><span>03</span> Second feature</label><input
-						id="movie-two"
-						name="movieTwo"
-						placeholder="e.g. A Nightmare on Elm Street"
-						value={form?.values?.movieTwo ?? ''}
-						aria-describedby={form?.errors?.movieTwo ? 'movie-two-error' : undefined}
-						aria-invalid={form?.errors?.movieTwo ? 'true' : undefined}
-					/>{#if form?.errors?.movieTwo}<p class="error" id="movie-two-error">
-							{form.errors.movieTwo}
-						</p>{/if}
-				</div>
-				<button type="submit">Submit to the projectionist <span>→</span></button>
 			</form>
 		{/if}
 	</section>
@@ -130,85 +182,37 @@
 	}
 	:global(html) {
 		scroll-behavior: smooth;
-		background: #110a1c;
+		background: #10091d;
 	}
 	:global(body) {
 		margin: 0;
 		color: #f9e8b6;
-		background: #110a1c;
+		background: #10091d;
 		font-family: 'DM Mono', monospace;
 	}
-	main {
-		overflow: hidden;
-	}
 	.hero {
-		min-height: 690px;
+		min-height: 700px;
 		position: relative;
 		isolation: isolate;
-		padding: 64px max(5vw, 28px) 160px;
-		background: radial-gradient(
-			ellipse at 67% 17%,
-			#8b346e 0,
-			#3b1751 25%,
-			#150c2b 58%,
-			#0b0b21 100%
-		);
+		padding: 64px max(6vw, 28px) 128px;
+		overflow: hidden;
+		background:
+			linear-gradient(90deg, rgb(15 8 31 / 0.94), rgb(22 8 35 / 0.58)),
+			url('/images/drive-in-voting-bg.png') center / cover;
 	}
 	.hero::after {
 		content: '';
 		position: absolute;
 		z-index: -1;
 		inset: 0;
-		opacity: 0.22;
-		background: repeating-linear-gradient(0deg, transparent 0 3px, #fff 3px 4px);
+		opacity: 0.15;
 		pointer-events: none;
-	}
-	.stars {
-		position: absolute;
-		inset: 0;
-		z-index: -1;
-		opacity: 0.8;
-		background-image:
-			radial-gradient(#f8dfa0 1px, transparent 1.5px),
-			radial-gradient(#f8dfa0 1px, transparent 1.5px);
-		background-size:
-			57px 57px,
-			83px 83px;
-		background-position:
-			9px 4px,
-			33px 41px;
-	}
-	.moon {
-		position: absolute;
-		z-index: -1;
-		width: 275px;
-		height: 275px;
-		border-radius: 50%;
-		right: 9%;
-		top: 62px;
-		background: #f7c86a;
-		box-shadow:
-			0 0 60px #ef8d5c,
-			0 0 170px #bf396a;
-		opacity: 0.9;
-	}
-	.moon::after {
-		content: '';
-		position: absolute;
-		width: 63px;
-		height: 63px;
-		top: 42px;
-		left: 46px;
-		border-radius: 50%;
-		background: #dfa259;
-		box-shadow:
-			82px 30px 0 -16px #dfa259,
-			36px 124px 0 -8px #dfa259;
+		background: repeating-linear-gradient(0deg, transparent 0 3px, #fff 3px 4px);
 	}
 	.marquee {
 		position: relative;
 		width: min(730px, 100%);
-		margin: 0 auto 58px;
+		margin: 0 auto 72px;
 		padding: 24px 28px 21px;
 		text-align: center;
 		color: #21132d;
@@ -223,11 +227,11 @@
 	.marquee h1 {
 		margin: 2px 0 -2px;
 		color: #4b1c4c;
-		font-family: 'League Gothic', Impact, sans-serif;
-		font-size: clamp(4rem, 11vw, 7.5rem);
-		font-weight: 400;
+		font:
+			400 clamp(4rem, 11vw, 7.5rem) / 0.8 'League Gothic',
+			Impact,
+			sans-serif;
 		letter-spacing: 0.02em;
-		line-height: 0.8;
 		text-transform: uppercase;
 		text-shadow: 2px 2px #f38b68;
 	}
@@ -242,7 +246,7 @@
 		pointer-events: none;
 	}
 	.hero-copy {
-		width: min(520px, 100%);
+		width: min(590px, 100%);
 		margin-left: max(4vw, 16px);
 	}
 	.eyebrow {
@@ -258,14 +262,14 @@
 		font-family: 'DM Serif Display', Georgia, serif;
 		font-weight: 400;
 	}
-	.hero-copy h2 {
+	.hero h2 {
 		margin: 0 0 18px;
 		color: #fff0c2;
-		font-size: clamp(2.7rem, 6vw, 4.7rem);
-		line-height: 0.94;
+		font-size: clamp(3rem, 6vw, 5rem);
+		line-height: 0.93;
 	}
 	.hero-copy > p:not(.eyebrow) {
-		max-width: 450px;
+		max-width: 500px;
 		color: #dac5d6;
 		font-size: 0.92rem;
 		line-height: 1.8;
@@ -274,7 +278,8 @@
 	button {
 		display: inline-flex;
 		align-items: center;
-		gap: 18px;
+		justify-content: center;
+		gap: 14px;
 		margin-top: 14px;
 		padding: 15px 18px;
 		color: #24142f;
@@ -292,87 +297,14 @@
 			box-shadow 0.15s;
 		cursor: pointer;
 	}
-	.ticket-button:hover,
-	button:hover {
+	button:hover:not(:disabled),
+	.ticket-button:hover {
 		transform: translate(2px, 2px);
 		box-shadow: 3px 3px 0 #d64e61;
 	}
-	.ticket-button span,
-	button span {
-		font-size: 1.15rem;
-	}
-	.horizon {
-		position: absolute;
-		right: 0;
-		bottom: 0;
-		left: 0;
-		height: 140px;
-		z-index: -1;
-		background: linear-gradient(transparent, #090817 58%);
-	}
-	.city {
-		position: absolute;
-		inset: 62px 0 0;
-		background: repeating-linear-gradient(
-			90deg,
-			#130d25 0 28px,
-			transparent 28px 34px,
-			#130d25 34px 66px
-		);
-		clip-path: polygon(
-			0 42%,
-			9% 42%,
-			9% 17%,
-			16% 17%,
-			16% 57%,
-			26% 57%,
-			26% 3%,
-			32% 3%,
-			32% 45%,
-			40% 45%,
-			40% 23%,
-			48% 23%,
-			48% 57%,
-			57% 57%,
-			57% 0,
-			63% 0,
-			63% 35%,
-			74% 35%,
-			74% 13%,
-			84% 13%,
-			84% 49%,
-			93% 49%,
-			93% 20%,
-			100% 20%,
-			100% 100%,
-			0 100%
-		);
-	}
-	.cars {
-		position: absolute;
-		bottom: 22px;
-		left: 14%;
-		display: flex;
-		gap: clamp(35px, 8vw, 100px);
-	}
-	.cars i {
-		position: relative;
-		width: 86px;
-		height: 27px;
-		border-radius: 38px 38px 6px 6px;
-		background: #251a32;
-		border-bottom: 5px solid #05050c;
-	}
-	.cars i::after {
-		content: '';
-		position: absolute;
-		width: 12px;
-		height: 12px;
-		right: 9px;
-		bottom: -10px;
-		border-radius: 50%;
-		background: #05050c;
-		box-shadow: -53px 0 #05050c;
+	button:disabled {
+		opacity: 0.48;
+		cursor: not-allowed;
 	}
 	.details {
 		display: grid;
@@ -385,8 +317,7 @@
 		padding: 29px 7%;
 		background: #1d102b;
 	}
-	.details span,
-	dt {
+	.details span {
 		display: block;
 		color: #ef8e68;
 		font-size: 0.63rem;
@@ -397,399 +328,340 @@
 		display: block;
 		margin: 7px 0;
 		color: #f9e8b6;
-		font-family: 'DM Serif Display', Georgia, serif;
-		font-size: 1.25rem;
-		font-weight: 400;
+		font:
+			400 1.25rem 'DM Serif Display',
+			Georgia,
+			serif;
 	}
-	.nomination-section {
-		display: grid;
-		grid-template-columns: minmax(250px, 0.85fr) minmax(380px, 1fr);
-		gap: clamp(45px, 9vw, 150px);
-		align-items: center;
-		padding: clamp(82px, 12vw, 150px) max(7vw, 28px);
-		background: #110a1c;
+	.voting {
+		padding: clamp(65px, 9vw, 120px) max(5vw, 28px);
+		background: #10091d;
 	}
-	.section-intro {
-		max-width: 450px;
-	}
-	.section-intro h2 {
-		margin: 0 0 16px;
-		color: #f8e9bd;
-		font-size: clamp(2.8rem, 5vw, 4.3rem);
-		line-height: 0.94;
-	}
-	.pixel-drive-in {
-		position: relative;
-		height: 238px;
-		margin-top: 29px;
-		overflow: hidden;
-		background: transparent;
-		image-rendering: pixelated;
-	}
-	.pixel-drive-in::before {
-		content: '';
-		position: absolute;
-		inset: 0 0 40%;
-		opacity: 0.7;
-		background-image: radial-gradient(#f7d98d 1px, transparent 1.5px);
-		background-size: 25px 25px;
-		background-position: 8px 6px;
-	}
-	.pixel-moon {
-		position: absolute;
-		top: 26px;
-		right: 34px;
-		width: 52px;
-		height: 52px;
-		background: #f8cf72;
-		box-shadow:
-			9px 8px 0 #c98262,
-			0 0 26px #e66768;
-	}
-	.pixel-pines {
-		position: absolute;
-		inset: 46px 0 38px;
-		overflow: hidden;
-	}
-	.pine-track {
+	.voting-heading {
 		display: flex;
-		width: 200%;
-		height: 100%;
-		animation: pines-drift 12s linear infinite;
+		align-items: end;
+		justify-content: space-between;
+		gap: 42px;
+		max-width: 1420px;
+		margin: 0 auto 42px;
 	}
-	.pine-set {
-		position: relative;
-		flex: 0 0 50%;
-		height: 100%;
-	}
-	.pine-set i {
-		position: absolute;
-		bottom: 0;
-		width: 74px;
-		height: 142px;
-		background: #171b31;
-		clip-path: polygon(
-			50% 0,
-			62% 14%,
-			62% 21%,
-			76% 21%,
-			76% 30%,
-			66% 30%,
-			86% 52%,
-			86% 61%,
-			69% 61%,
-			98% 88%,
-			98% 100%,
-			2% 100%,
-			2% 88%,
-			31% 61%,
-			14% 61%,
-			14% 52%,
-			34% 30%,
-			24% 30%,
-			24% 21%,
-			38% 21%,
-			38% 14%
-		);
-	}
-	.pine-set i:nth-child(1) {
-		left: -17px;
-		height: 128px;
-	}
-	.pine-set i:nth-child(2) {
-		left: 82px;
-		height: 175px;
-	}
-	.pine-set i:nth-child(3) {
-		right: 76px;
-		height: 119px;
-	}
-	.pine-set i:nth-child(4) {
-		right: -23px;
-		height: 161px;
-	}
-	.pixel-road {
-		position: absolute;
-		right: 0;
-		bottom: 0;
-		left: 0;
-		height: 4px;
-		background: #e35a63;
-		opacity: 0.75;
-	}
-	.pixel-car {
-		position: absolute;
-		bottom: 18px;
-		left: 50%;
-		width: 174px;
-		height: 49px;
-		border: 5px solid #080914;
-		border-radius: 12px 12px 3px 3px;
-		background: #74334f;
-		box-shadow:
-			inset 0 -9px #3c203b,
-			0 9px 0 -2px #080914;
-		animation: car-idle 1.6s steps(2, end) infinite;
-	}
-	.pixel-car::before {
-		content: '';
-		position: absolute;
-		bottom: 42px;
-		left: 31px;
-		width: 94px;
-		height: 34px;
-		border: 5px solid #080914;
-		border-bottom: 0;
-		background: #312340;
-		box-shadow: inset 12px 0 #c77067;
-	}
-	.pixel-car span {
-		position: absolute;
-		top: 12px;
-		left: 18px;
-		width: 9px;
-		height: 9px;
-		background: #d45e61;
-	}
-	.pixel-car b {
-		position: absolute;
-		top: 13px;
-		right: -15px;
-		width: 15px;
-		height: 12px;
-		background: #fff0a1;
-		box-shadow:
-			29px 0 0 -4px #f5d171,
-			45px 0 0 -8px #f5d171;
-	}
-	.pixel-car b:last-child {
-		top: auto;
-		right: 23px;
-		bottom: -14px;
-		width: 24px;
-		height: 24px;
-		border: 5px solid #080914;
-		border-radius: 50%;
-		background: #9b7773;
-		box-shadow: -94px 0 #9b7773;
-	}
-	@keyframes pines-drift {
-		to {
-			transform: translateX(-50%);
-		}
-	}
-	@keyframes car-idle {
-		0%,
-		100% {
-			transform: translate(-50%, 0);
-		}
-		50% {
-			transform: translate(-50%, -4px);
-		}
-	}
-	@media (prefers-reduced-motion: reduce) {
-		.pine-track,
-		.pixel-car {
-			animation: none;
-		}
-		.pixel-car {
-			transform: translateX(-50%);
-		}
-	}
-	.nomination-form,
-	.thanks {
-		position: relative;
-		padding: 35px;
-		background: #f6e2a9;
-		color: #26182d;
-		box-shadow:
-			12px 12px 0 #8c315b,
-			0 0 0 1px #e85360;
-	}
-	.nomination-form::before,
-	.thanks::before {
-		content: '';
-		position: absolute;
-		inset: 10px;
-		border: 1px dashed #b55a62;
-		pointer-events: none;
-	}
-	.form-header {
-		position: relative;
-		margin-bottom: 28px;
-		text-align: center;
-	}
-	.reel {
-		display: block;
-		margin-bottom: 4px;
-		color: #dd5462;
-		font-size: 2rem;
-		line-height: 1;
-	}
-	.form-header h3,
-	.thanks h3 {
+	.voting-heading h2 {
+		max-width: 640px;
 		margin: 0;
-		color: #432040;
-		font-size: 2rem;
-		line-height: 1;
+		color: #f8e9bd;
+		font-size: clamp(2.7rem, 5vw, 4.5rem);
+		line-height: 0.95;
 	}
-	.form-header p,
-	.thanks > p:not(.eyebrow):not(.fine-print) {
-		margin: 10px 0 0;
-		color: #725069;
-		font-size: 0.7rem;
+	.rules {
+		max-width: 325px;
+		margin: 0;
+		color: #d7bacd;
+		font-size: 0.78rem;
+		line-height: 1.7;
 	}
-	.scary-meter-link {
-		display: inline-flex;
-		align-items: center;
-		gap: 12px;
-		margin-top: 9px;
-		padding: 12px 14px;
-		color: #f9e8b6;
-		border: 1px solid #e15b67;
-		background: #3b1945;
-		font-size: 0.68rem;
-		letter-spacing: 0.04em;
-		text-decoration: none;
-		transition:
-			background 0.15s,
-			transform 0.15s;
+	.ballot {
+		max-width: 1420px;
+		margin: auto;
 	}
-	.scary-meter-link:hover {
-		background: #572051;
-		transform: translateY(-2px);
-	}
-	.scary-meter-link span {
-		color: #f6c767;
-		font-size: 1rem;
-	}
-	.field {
-		position: relative;
-		margin: 20px 0;
+	.ballot-controls,
+	.locked-ballot {
+		position: sticky;
+		top: 18px;
+		z-index: 2;
+		display: grid;
+		grid-template-columns: minmax(190px, 0.75fr) minmax(330px, 1.4fr) auto;
+		gap: 22px;
+		align-items: end;
+		margin-bottom: 34px;
+		padding: 25px;
+		color: #26182d;
+		background: #f6e2a9;
+		box-shadow: 9px 9px 0 #8c315b;
 	}
 	.field label {
 		display: block;
 		margin-bottom: 8px;
-		color: #55284a;
-		font-size: 0.67rem;
-		letter-spacing: 0.1em;
+		font-size: 0.65rem;
+		font-weight: 500;
+		letter-spacing: 0.13em;
 		text-transform: uppercase;
-	}
-	.field label span {
-		margin-right: 8px;
-		color: #dc5562;
 	}
 	input {
 		width: 100%;
-		padding: 13px 4px 10px;
-		color: #351c37;
-		outline: none;
-		border: 0;
-		border-bottom: 2px solid #b85a60;
-		background: transparent;
+		padding: 13px;
+		color: #26182d;
+		border: 2px solid #8c315b;
+		border-radius: 0;
+		background: #fff2c7;
 		font:
-			1.2rem 'DM Serif Display',
-			Georgia,
-			serif;
+			0.82rem 'DM Mono',
+			monospace;
 	}
-	input:focus {
-		border-bottom-color: #582352;
-		box-shadow: 0 2px 0 #582352;
-	}
-	input::placeholder {
-		color: #aa8490;
-	}
-	input[aria-invalid='true'] {
-		border-bottom-color: #ba304d;
-	}
-	.error {
-		margin: 6px 0 0;
-		color: #9d193a;
+	.your-picks > span {
+		display: block;
+		margin-bottom: 7px;
+		color: #7e2858;
 		font-size: 0.65rem;
+		letter-spacing: 0.13em;
+		text-transform: uppercase;
 	}
-	.nomination-form button {
-		width: 100%;
-		justify-content: center;
-		margin-top: 12px;
-		background: #db5763;
-		color: #fff0c2;
-		box-shadow: 4px 4px 0 #56234d;
+	.your-picks ol {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 7px;
+		margin: 0;
+		padding: 0;
+		list-style: none;
 	}
-	.nomination-form button:hover {
-		box-shadow: 2px 2px 0 #56234d;
+	.your-picks li {
+		min-height: 47px;
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 7px 9px;
+		background: #ffeeb9;
+		font-size: 0.67rem;
+		line-height: 1.35;
+	}
+	.your-picks li.empty {
+		color: #8a6370;
+	}
+	.your-picks b {
+		display: grid;
+		flex: 0 0 19px;
+		width: 19px;
+		height: 19px;
+		place-items: center;
+		color: #ffeeb9;
+		background: #762d5d;
+		border-radius: 50%;
+		font-size: 0.63rem;
+	}
+	.ballot-controls button {
+		margin: 0;
+		min-height: 50px;
 	}
 	.fine-print {
+		grid-column: 1 / -1;
+		margin: -8px 0 0;
+		color: #795568;
+		font-size: 0.62rem;
+	}
+	.error {
+		grid-column: 1 / -1;
+		margin: 0;
+		color: #a62e4c;
+		font-size: 0.72rem;
+	}
+	.film-grid {
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		gap: 20px;
+	}
+	.film-card {
+		min-width: 0;
+		overflow: hidden;
+		border: 1px solid #64345c;
+		background: #1d102b;
+		box-shadow: 5px 5px 0 #3c1a41;
+		transition:
+			transform 0.15s,
+			border-color 0.15s;
+	}
+	.film-card.chosen {
+		border-color: #f6c767;
+		transform: translateY(-4px);
+		box-shadow: 5px 9px 0 #d64e61;
+	}
+	.film-art {
 		position: relative;
-		margin: 17px 0 0;
-		color: #806274;
-		font-size: 0.59rem;
-		line-height: 1.55;
+		height: 300px;
+		overflow: hidden;
+		background: #26133b;
+	}
+	.film-art::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		background: repeating-linear-gradient(0deg, transparent 0 4px, rgb(255 255 255 / 0.08) 4px 5px);
+	}
+	.film-art img {
+		display: block;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		object-position: center;
+	}
+	.film-copy {
+		padding: 17px;
+	}
+	.film-title-row {
+		display: flex;
+		align-items: start;
+		justify-content: space-between;
+		gap: 9px;
+	}
+	.film-title-row h3 {
+		margin: 0;
+		color: #fff0c2;
+		font-size: 1.38rem;
+		line-height: 1;
+	}
+	.rank-badge {
+		flex: 0 0 auto;
+		padding: 4px 5px;
+		color: #21132d;
+		background: #f6c767;
+		font-size: 0.56rem;
+		white-space: nowrap;
+	}
+	.nominators {
+		min-height: 35px;
+		margin: 13px 0;
+		color: #d5b9cb;
+		font-size: 0.67rem;
+		line-height: 1.5;
+	}
+	.nominators b {
+		color: #f18d6c;
+		font-weight: 500;
+	}
+	.meter {
+		margin: 14px 0;
+		padding: 10px;
+		border: 1px solid #69435e;
+		background: #150c27;
+	}
+	.meter > p {
+		margin: 0 0 8px;
+		color: #f18d6c;
+		font-size: 0.56rem;
+		font-weight: 500;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+	}
+	.meter dl {
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: 5px;
+		margin: 0;
+	}
+	.meter dl div {
+		min-width: 0;
+	}
+	.meter dt {
+		color: #c7a9be;
+		font-size: 0.52rem;
+		letter-spacing: 0.03em;
+	}
+	.meter dd {
+		margin: 3px 0 0;
+		color: #f9e8b6;
+		font-size: 0.8rem;
+	}
+	.unrated {
+		color: #c7a9be;
+		font-size: 0.64rem;
+	}
+	.film-links {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 10px;
+	}
+	.film-links a {
+		color: #f6c767;
+		font-size: 0.63rem;
+		text-underline-offset: 3px;
+	}
+	.pick-button {
+		width: 100%;
+		margin-top: 18px;
+		padding: 11px;
+		color: #24142f;
+		background: #f6c767;
+		box-shadow: 3px 3px 0 #d64e61;
+		font-size: 0.62rem;
+	}
+	.pick-button.selected {
+		color: #fff0c2;
+		background: #7e2858;
+		box-shadow: 3px 3px 0 #f6c767;
+	}
+	.locked-ballot {
+		position: relative;
+		display: block;
+		max-width: 640px;
+		margin: 0 auto;
 		text-align: center;
 	}
-	.thanks {
-		text-align: center;
+	.locked-ballot h3 {
+		margin: 0;
+		font-size: 2.4rem;
 	}
-	.thanks-icon {
-		position: relative;
-		width: 56px;
-		height: 56px;
+	.locked-ballot > p:not(.eyebrow) {
+		margin: 8px 0 20px;
+	}
+	.locked-ballot ol {
 		display: grid;
-		place-items: center;
-		margin: 0 auto 14px;
-		border: 2px solid #db5763;
-		border-radius: 50%;
-		color: #db5763;
-		font-size: 1.5rem;
-	}
-	.thanks .eyebrow {
-		color: #bf4d60;
-	}
-	.thanks dl {
-		position: relative;
-		display: grid;
-		gap: 13px;
-		margin: 25px 0 0;
-		padding-top: 21px;
-		border-top: 1px solid #c36b67;
+		gap: 8px;
+		margin: 0;
+		padding: 0;
+		list-style: none;
 		text-align: left;
 	}
-	.thanks dl div {
-		display: grid;
-		grid-template-columns: 92px 1fr;
-		gap: 12px;
+	.locked-ballot li {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		padding: 10px;
+		background: #fff0c2;
+		font-size: 0.76rem;
 	}
-	.thanks dd {
-		margin: 0;
-		color: #3b2040;
-		font-family: 'DM Serif Display', Georgia, serif;
-		font-size: 1.15rem;
+	.locked-ballot li span {
+		display: grid;
+		width: 23px;
+		height: 23px;
+		place-items: center;
+		color: #fff0c2;
+		background: #762d5d;
+		border-radius: 50%;
+	}
+	.locked-ballot small {
+		margin-left: auto;
+		color: #7e2858;
 	}
 	footer {
-		padding: 28px;
-		color: #a190a5;
-		border-top: 1px solid #452447;
-		background: #0a0712;
-		font-size: 0.63rem;
-		letter-spacing: 0.08em;
+		padding: 30px;
+		color: #b68ba9;
+		border-top: 1px solid #5d2b59;
+		background: #0b0715;
 		text-align: center;
+		font-size: 0.65rem;
+		letter-spacing: 0.12em;
 		text-transform: uppercase;
 	}
 	footer span {
 		color: #e66063;
 	}
+	@media (max-width: 1050px) {
+		.film-grid {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+		}
+		.ballot-controls {
+			grid-template-columns: 1fr 1.6fr;
+		}
+		.ballot-controls button {
+			grid-column: 1 / -1;
+		}
+	}
 	@media (max-width: 720px) {
 		.hero {
-			min-height: 630px;
-			padding-top: 43px;
-		}
-		.moon {
-			width: 175px;
-			height: 175px;
-			right: -20px;
-			top: 145px;
+			min-height: 650px;
+			padding-top: 42px;
 		}
 		.marquee {
-			margin-bottom: 52px;
+			margin-bottom: 58px;
 			padding: 20px 18px 18px;
 		}
 		.marquee h1 {
@@ -797,7 +669,7 @@
 			letter-spacing: 0;
 		}
 		.hero-copy {
-			margin: 0;
+			margin-left: 0;
 		}
 		.details {
 			grid-template-columns: 1fr;
@@ -805,13 +677,67 @@
 		.details div {
 			padding: 20px 10%;
 		}
-		.nomination-section {
-			grid-template-columns: 1fr;
-			padding-inline: 28px;
+		.voting-heading {
+			display: block;
 		}
-		.nomination-form,
-		.thanks {
-			padding: 29px 23px;
+		.rules {
+			margin-top: 20px;
+		}
+		.ballot-controls {
+			position: relative;
+			display: block;
+			padding: 20px;
+		}
+		.your-picks {
+			margin-top: 20px;
+		}
+		.your-picks ol {
+			grid-template-columns: 1fr;
+		}
+		.ballot-controls button {
+			width: 100%;
+			margin-top: 20px;
+		}
+		.fine-print {
+			margin-top: 16px;
+		}
+		.film-grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			gap: 12px;
+		}
+		.film-art {
+			height: 210px;
+		}
+		.film-copy {
+			padding: 13px;
+		}
+		.film-title-row {
+			display: block;
+		}
+		.rank-badge {
+			display: inline-block;
+			margin-top: 8px;
+		}
+		.nominators {
+			min-height: 0;
+		}
+		.film-links {
+			display: block;
+		}
+		.film-links a {
+			display: block;
+			margin-bottom: 8px;
+		}
+		.pick-button {
+			font-size: 0.56rem;
+		}
+	}
+	@media (max-width: 390px) {
+		.film-grid {
+			grid-template-columns: 1fr;
+		}
+		.film-art {
+			height: 180px;
 		}
 	}
 </style>
