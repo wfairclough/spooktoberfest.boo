@@ -14,7 +14,6 @@ CREATE TABLE IF NOT EXISTS vote_choices (
   vote_id TEXT NOT NULL,
   candidate_id TEXT NOT NULL,
   rank INTEGER NOT NULL CHECK (rank BETWEEN 1 AND 3),
-  points INTEGER NOT NULL CHECK (points BETWEEN 1 AND 3),
   PRIMARY KEY (vote_id, candidate_id),
   UNIQUE (vote_id, rank),
   FOREIGN KEY (vote_id) REFERENCES votes(id),
@@ -42,5 +41,4 @@ INSERT OR IGNORE INTO vote_candidates (id, title) VALUES
   ('buddy', 'Buddy'),
   ('resident-evil-2026', 'Resident Evil (2026)'),
   ('talk-to-me', 'Talk to Me'),
-  ('other-mommy', 'Other Mommy'),
   ('american-werewolf-in-london', 'An American Werewolf in London');

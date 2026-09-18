@@ -2,6 +2,7 @@ export type ScaryMeterRatings = { scary: number; creepy: number; gory: number; j
 export type Candidate = {
 	id: string;
 	title: string;
+	releaseYear: number;
 	nominators: string[];
 	trailerQuery: string;
 	posterPath: string;
@@ -16,7 +17,7 @@ const rating = (scary: number, creepy: number, gory: number, jumpy: number): Sca
 });
 
 // Poster paths and ratings were sourced from each film's public Scary Meter record on 2026-09-18.
-export const candidates: Candidate[] = [
+const nominatedCandidates: Omit<Candidate, 'releaseYear'>[] = [
 	{
 		id: 'bring-her-back',
 		title: 'Bring Her Back',
@@ -198,15 +199,6 @@ export const candidates: Candidate[] = [
 		ratings: rating(7.6, 8.9, 6.2, 3.7)
 	},
 	{
-		id: 'other-mommy',
-		title: 'Other Mommy',
-		nominators: ['Aish'],
-		trailerQuery: 'Other Mommy official trailer horror',
-		posterPath: '/fGRNCssTRrhYZxNzykGGCoMsAVq.jpg',
-		scaryMeterUrl: 'https://scarymeter.com/movie/1400837',
-		ratings: null
-	},
-	{
 		id: 'american-werewolf-in-london',
 		title: 'An American Werewolf in London',
 		nominators: ['Katrina'],
@@ -216,6 +208,34 @@ export const candidates: Candidate[] = [
 		ratings: rating(5.6, 5.2, 8.7, 5.5)
 	}
 ];
+
+const releaseYears: Record<string, number> = {
+	'bring-her-back': 2025,
+	'scary-movie-2026': 2026,
+	'sixth-sense': 1999,
+	'get-out': 2017,
+	'28-years-later': 2025,
+	'28-years-later-bone-temple': 2026,
+	'shaun-of-the-dead': 2004,
+	'trick-r-treat': 2007,
+	'send-help': 2026,
+	hokum: 2025,
+	'the-witch': 2015,
+	'the-birds': 1963,
+	backrooms: 2026,
+	'barbarian-2022': 2022,
+	'gremlins-1984': 1984,
+	'practical-magic': 1998,
+	'practical-magic-2': 2026,
+	buddy: 2025,
+	'resident-evil-2026': 2026,
+	'talk-to-me': 2023,
+	'american-werewolf-in-london': 1981
+};
+
+export const candidates: Candidate[] = nominatedCandidates
+	.map((candidate) => ({ ...candidate, releaseYear: releaseYears[candidate.id] }))
+	.sort((a, b) => a.title.localeCompare(b.title));
 
 export const candidateIds = new Set(candidates.map((candidate) => candidate.id));
 export function posterUrl(path: string) {

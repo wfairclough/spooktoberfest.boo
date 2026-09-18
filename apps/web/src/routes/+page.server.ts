@@ -1,5 +1,5 @@
 import { fail } from '@sveltejs/kit';
-import { VOTE_POINTS, readVote, validateVote, type Vote } from '$lib/vote';
+import { readVote, validateVote, type Vote } from '$lib/vote';
 import type { Actions, PageServerLoad } from './$types';
 
 const voteCookie = 'spooktoberfest-2026-vote';
@@ -50,10 +50,8 @@ export const actions: Actions = {
 						.bind(vote.id, vote.voterName, normaliseVoterName(vote.voterName), vote.submittedAt),
 					...vote.choices.map((candidateId, index) =>
 						database
-							.prepare(
-								'INSERT INTO vote_choices (vote_id, candidate_id, rank, points) VALUES (?, ?, ?, ?)'
-							)
-							.bind(vote.id, candidateId, index + 1, VOTE_POINTS[index])
+							.prepare('INSERT INTO vote_choices (vote_id, candidate_id, rank) VALUES (?, ?, ?)')
+							.bind(vote.id, candidateId, index + 1)
 					)
 				]);
 			} catch {

@@ -4,6 +4,7 @@
 	let { data, form } = $props();
 	let selections = $state<string[]>([]);
 	const vote = $derived(form?.vote ?? data.vote);
+	const pointsByRank = [3, 2, 1];
 
 	function choose(candidate: Candidate) {
 		const existingIndex = selections.indexOf(candidate.id);
@@ -21,6 +22,15 @@
 	function candidateFor(id: string) {
 		return candidates.find((candidate) => candidate.id === id);
 	}
+
+	function ratingRows(ratings: NonNullable<Candidate['ratings']>) {
+		return [
+			{ label: 'Scary', value: ratings.scary },
+			{ label: 'Creepy', value: ratings.creepy },
+			{ label: 'Gory', value: ratings.gory },
+			{ label: 'Jumpy', value: ratings.jumpy }
+		];
+	}
 </script>
 
 <svelte:head><title>Spooktoberfest 2026</title></svelte:head>
@@ -33,11 +43,13 @@
 		</div>
 		<div class="hero-copy">
 			<p class="eyebrow">The nomination booth is closed</p>
-			<h2>The lineup is in.<br />Now choose the winners.</h2>
+			<h2>TIME TO VOTE.</h2>
 			<p>
-				Cast your three votes for the movies you want to see at the Mayfair. First pick gets 3
-				points, second gets 2, and third gets 1.
+				Cast your three votes for the movies you want to see. First pick gets 3 points, second gets
+				2, and third gets 1. The overall winner will be screened at the Mayfair<sup>**</sup>, and
+				runner up(s) will be streamed at Kat &amp; Will's afterwards.
 			</p>
+			<p class="hero-footnote">** As long as we can acquire the BluRay lol</p>
 			<a class="ticket-button" href="#ballot">Cast your ballot <span>↓</span></a>
 		</div>
 	</section>
@@ -52,7 +64,7 @@
 		<div class="voting-heading">
 			<div>
 				<p class="eyebrow">The voting booth</p>
-				<h2 id="ballot-title">Pick the double-feature contenders.</h2>
+				<h2 id="ballot-title">Cast your votes.</h2>
 			</div>
 			<p class="rules">
 				Choose exactly three. Your ballot locks when submitted, and each name can submit once.
@@ -80,18 +92,31 @@
 							id="voter-name"
 							name="voterName"
 							maxlength="100"
+							required
 							placeholder="e.g. Elvira"
 							value={form?.values?.voterName ?? ''}
 							aria-invalid={form?.errors?.voterName ? 'true' : undefined}
 						/>
+						{#if form?.errors?.voterName}<p class="error">{form.errors.voterName}</p>{/if}
 					</div>
 					<div class="your-picks" aria-live="polite">
 						<span>Your ballot · {selections.length}/3</span>
 						<ol>
 							{#each [0, 1, 2] as index (index)}
 								{@const candidate = selections[index] ? candidateFor(selections[index]) : undefined}
-								<li class:empty={!candidate}>
-									<b>{index + 1}</b>{candidate?.title ?? 'Choose a film'}
+								<li
+									class:empty={!candidate}
+									class:top-pick={index === 0}
+									class:second-pick={index === 1}
+									class:third-pick={index === 2}
+								>
+									<b>{index + 1}</b><span
+										><small
+											>{index === 0 ? 'Top pick' : index === 1 ? 'Second pick' : 'Third pick'} · {pointsByRank[
+												index
+											]} points</small
+										>{candidate?.title ?? 'Choose a film'}</span
+									>
 								</li>
 							{/each}
 						</ol>
@@ -104,7 +129,6 @@
 					<button type="submit" disabled={selections.length !== 3}
 						>Lock in my votes <span>→</span></button
 					>
-					<p class="fine-print">One locked ballot per name and browser.</p>
 				</div>
 
 				<div class="film-grid">
@@ -116,33 +140,32 @@
 							</div>
 							<div class="film-copy">
 								<div class="film-title-row">
-									<h3>{candidate.title}</h3>
+									<div>
+										<h3>{candidate.title}</h3>
+										<p class="release-year">{candidate.releaseYear}</p>
+									</div>
 									{#if rank}<span class="rank-badge">#{rank} · {4 - rank} pts</span>{/if}
 								</div>
 								<p class="nominators"><b>Nominated by</b> {candidate.nominators.join(', ')}</p>
 								<div class="meter" aria-label={'Scary Meter ratings for ' + candidate.title}>
-									<p>Scary Meter</p>
 									{#if candidate.ratings}
 										<dl>
-											<div>
-												<dt>Scary</dt>
-												<dd>{candidate.ratings.scary.toFixed(1)}</dd>
-											</div>
-											<div>
-												<dt>Creepy</dt>
-												<dd>{candidate.ratings.creepy.toFixed(1)}</dd>
-											</div>
-											<div>
-												<dt>Gory</dt>
-												<dd>{candidate.ratings.gory.toFixed(1)}</dd>
-											</div>
-											<div>
-												<dt>Jumpy</dt>
-												<dd>{candidate.ratings.jumpy.toFixed(1)}</dd>
-											</div>
+											{#each ratingRows(candidate.ratings) as row (row.label)}
+												<div>
+													<dt>{row.label}</dt>
+													<dd>
+														<span
+															class="rating-track"
+															aria-label={row.label + ': ' + row.value.toFixed(1) + ' out of 10'}
+															><span class="rating-fill" style:width={row.value * 10 + '%'}
+															></span></span
+														>
+													</dd>
+												</div>
+											{/each}
 										</dl>
 									{:else}
-										<span class="unrated">Not rated yet</span>
+										<span class="unrated">🌈 This is not a scary film 🦄</span>
 									{/if}
 								</div>
 								<div class="film-links">
@@ -273,6 +296,16 @@
 		color: #dac5d6;
 		font-size: 0.92rem;
 		line-height: 1.8;
+	}
+	.hero-copy .hero-footnote {
+		margin: 11px 0 0;
+		color: #ffbd5b;
+		font-size: 0.64rem;
+		line-height: 1.4;
+	}
+	.hero-copy sup {
+		color: #ffbd5b;
+		font-size: 0.62em;
 	}
 	.ticket-button,
 	button {
@@ -423,6 +456,15 @@
 		font-size: 0.67rem;
 		line-height: 1.35;
 	}
+	.your-picks li > span {
+		display: grid;
+		gap: 2px;
+	}
+	.your-picks small {
+		font-size: 0.52rem;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+	}
 	.your-picks li.empty {
 		color: #8a6370;
 	}
@@ -437,15 +479,40 @@
 		border-radius: 50%;
 		font-size: 0.63rem;
 	}
+	.your-picks .top-pick {
+		border-left: 4px solid #c89219;
+		background: #fff3c6;
+	}
+	.your-picks .second-pick {
+		border-left: 4px solid #92724b;
+		background: #f9e8bf;
+	}
+	.your-picks .third-pick {
+		border-left: 4px solid #655875;
+		background: #efdeb6;
+	}
+	.your-picks .top-pick b {
+		background: #b87b08;
+	}
+	.your-picks .second-pick b {
+		background: #82633f;
+	}
+	.your-picks .third-pick b {
+		background: #5e5270;
+	}
+	.your-picks .top-pick small {
+		color: #9e6300;
+		font-weight: 500;
+	}
+	.your-picks .second-pick small {
+		color: #76542f;
+	}
+	.your-picks .third-pick small {
+		color: #5e5270;
+	}
 	.ballot-controls button {
 		margin: 0;
 		min-height: 50px;
-	}
-	.fine-print {
-		grid-column: 1 / -1;
-		margin: -8px 0 0;
-		color: #795568;
-		font-size: 0.62rem;
 	}
 	.error {
 		grid-column: 1 / -1;
@@ -508,6 +575,13 @@
 		font-size: 1.38rem;
 		line-height: 1;
 	}
+	.release-year {
+		margin: 6px 0 0;
+		color: #e98b6b;
+		font-size: 0.58rem;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
 	.rank-badge {
 		flex: 0 0 auto;
 		padding: 4px 5px;
@@ -533,21 +607,15 @@
 		border: 1px solid #69435e;
 		background: #150c27;
 	}
-	.meter > p {
-		margin: 0 0 8px;
-		color: #f18d6c;
-		font-size: 0.56rem;
-		font-weight: 500;
-		letter-spacing: 0.12em;
-		text-transform: uppercase;
-	}
 	.meter dl {
 		display: grid;
-		grid-template-columns: repeat(4, 1fr);
-		gap: 5px;
+		gap: 6px;
 		margin: 0;
 	}
 	.meter dl div {
+		display: grid;
+		grid-template-columns: 45px 1fr;
+		align-items: center;
 		min-width: 0;
 	}
 	.meter dt {
@@ -556,9 +624,20 @@
 		letter-spacing: 0.03em;
 	}
 	.meter dd {
-		margin: 3px 0 0;
-		color: #f9e8b6;
-		font-size: 0.8rem;
+		margin: 0;
+	}
+	.rating-track {
+		display: block;
+		height: 7px;
+		overflow: hidden;
+		background: #332044;
+		box-shadow: inset 0 0 0 1px #69435e;
+	}
+	.rating-fill {
+		display: block;
+		height: 100%;
+		background: linear-gradient(90deg, #d95763, #f6c767);
+		box-shadow: 0 0 8px #f6c767;
 	}
 	.unrated {
 		color: #c7a9be;
@@ -697,9 +776,6 @@
 		.ballot-controls button {
 			width: 100%;
 			margin-top: 20px;
-		}
-		.fine-print {
-			margin-top: 16px;
 		}
 		.film-grid {
 			grid-template-columns: repeat(2, minmax(0, 1fr));

@@ -1,7 +1,5 @@
 import { candidateIds } from './candidates';
 
-export const VOTE_POINTS = [3, 2, 1] as const;
-
 export type Vote = {
 	id: string;
 	voterName: string;
