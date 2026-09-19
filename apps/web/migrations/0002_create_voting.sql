@@ -41,4 +41,11 @@ INSERT OR IGNORE INTO vote_candidates (id, title) VALUES
   ('buddy', 'Buddy'),
   ('resident-evil-2026', 'Resident Evil (2026)'),
   ('talk-to-me', 'Talk to Me'),
-  ('american-werewolf-in-london', 'An American Werewolf in London');
+  ('scream', 'Scream'),
+  ('american-werewolf-in-london', 'An American Werewolf in London'),
+  ('alien', 'Alien'),
+  ('the-dead-zone', 'The Dead Zone'),
+  ('sinners', 'Sinners'),
+  ('together', 'Together'),
+  ('the-dark-and-the-wicked', 'The Dark and the Wicked'),
+  ('resident-evil-original', 'Resident Evil (Original)');

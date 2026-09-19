@@ -1,10 +1,16 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
 	import { candidates, posterUrl, youtubeSearchUrl, type Candidate } from '$lib/candidates';
 
 	let { data, form } = $props();
 	let selections = $state<string[]>([]);
+	let voterName = $state('');
 	const vote = $derived(form?.vote ?? data.vote);
 	const pointsByRank = [3, 2, 1];
+
+	$effect(() => {
+		if (form?.values?.voterName) voterName = form.values.voterName;
+	});
 
 	function choose(candidate: Candidate) {
 		const existingIndex = selections.indexOf(candidate.id);
@@ -84,7 +90,7 @@
 				</ol>
 			</section>
 		{:else}
-			<form method="POST" action="?/vote" class="ballot">
+			<form method="POST" action="?/vote" class="ballot" use:enhance>
 				<div class="ballot-controls">
 					<div class="field">
 						<label for="voter-name">Your name</label>
@@ -94,7 +100,7 @@
 							maxlength="100"
 							required
 							placeholder="e.g. Elvira"
-							value={form?.values?.voterName ?? ''}
+							bind:value={voterName}
 							aria-invalid={form?.errors?.voterName ? 'true' : undefined}
 						/>
 						{#if form?.errors?.voterName}<p class="error">{form.errors.voterName}</p>{/if}
