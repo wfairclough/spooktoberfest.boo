@@ -507,6 +507,20 @@
 		.runner-grid {
 			grid-template-columns: 1fr;
 		}
+		.runner-card {
+			grid-template-columns: 120px minmax(0, 1fr);
+		}
+		.runner-card > img {
+			height: 180px;
+		}
+		.vote-stats.compact {
+			bottom: auto;
+			grid-column: 1 / -1;
+			left: auto;
+			margin-top: 8px;
+			position: static;
+			width: auto;
+		}
 		.ranking-row {
 			gap: 12px;
 			grid-template-columns: 35px 48px 1fr 52px;
