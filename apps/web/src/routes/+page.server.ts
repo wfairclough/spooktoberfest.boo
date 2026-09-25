@@ -1,4 +1,4 @@
-import { fail } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 import { readVote, validateVote, type Vote } from '$lib/vote';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -8,7 +8,9 @@ function normaliseVoterName(name: string) {
 	return name.trim().replace(/\s+/g, ' ').toLocaleLowerCase();
 }
 
-export const load: PageServerLoad = ({ cookies }) => ({ vote: readVote(cookies.get(voteCookie)) });
+export const load: PageServerLoad = () => {
+	redirect(302, '/results');
+};
 
 export const actions: Actions = {
 	vote: async ({ request, cookies, platform }) => {

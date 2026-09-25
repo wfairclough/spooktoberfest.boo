@@ -2,10 +2,10 @@
 	import { enhance } from '$app/forms';
 	import { candidates, posterUrl, youtubeSearchUrl, type Candidate } from '$lib/candidates';
 
-	let { data, form } = $props();
+	let { form } = $props();
 	let selections = $state<string[]>([]);
 	let voterName = $state('');
-	const vote = $derived(form?.vote ?? data.vote);
+	const vote = $derived(form?.vote);
 	const pointsByRank = [3, 2, 1];
 
 	$effect(() => {
